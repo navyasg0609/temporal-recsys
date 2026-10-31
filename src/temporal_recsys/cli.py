@@ -1,11 +1,13 @@
 """Command line entry point, installed as `trs`."""
 
 import argparse
+import json
 import logging
 import sys
 from collections.abc import Sequence
 from pathlib import Path
 
+from temporal_recsys.data.benchmark import load_plan, run_benchmark
 from temporal_recsys.data.pipeline import ingest
 from temporal_recsys.data.quality import NETFLIX_PRIZE
 from temporal_recsys.data.spark import create_spark_session
@@ -27,7 +29,27 @@ def build_parser() -> argparse.ArgumentParser:
     ingest_command.add_argument(
         "--check-netflix", action="store_true", help="require the known Netflix Prize totals"
     )
+
+    benchmark = commands.add_parser("benchmark", help="time a registered read benchmark")
+    benchmark.add_argument("--data-dir", type=Path, required=True)
+    benchmark.add_argument("--plan", type=Path, required=True)
+    benchmark.add_argument("--output", type=Path, required=True)
+    benchmark.add_argument("--code-commit", required=True)
+    benchmark.add_argument("--driver-memory", default="2g")
     return parser
+
+
+def run_benchmark_command(args: argparse.Namespace) -> int:
+    spark = create_spark_session("benchmark", driver_memory=args.driver_memory)
+    try:
+        result = run_benchmark(spark, args.data_dir, load_plan(args.plan), args.code_commit)
+    finally:
+        spark.stop()
+
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    args.output.write_text(json.dumps(result, indent=2), encoding="utf-8")
+    print(json.dumps({key: result[key] for key in ("windows", "summary")}, indent=2))
+    return 0
 
 
 def run_synthetic(args: argparse.Namespace) -> int:
@@ -57,7 +79,11 @@ def run_ingest(args: argparse.Namespace) -> int:
 def main(argv: Sequence[str] | None = None) -> int:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
     args = build_parser().parse_args(argv)
-    commands = {"synthetic": run_synthetic, "ingest": run_ingest}
+    commands = {
+        "synthetic": run_synthetic,
+        "ingest": run_ingest,
+        "benchmark": run_benchmark_command,
+    }
     return commands[args.command](args)
 
 
