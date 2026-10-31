@@ -12,6 +12,7 @@ dependencies = [
     "pyarrow>=17",
     "pyspark==4.0.4",
     "pyyaml>=6.0.3",
+    "scipy>=1.14",
 ]
 
 [project.scripts]
@@ -57,5 +58,5 @@ strict = true
 files = ["src", "tests"]
 
 [[tool.mypy.overrides]]
-module = ["pyarrow", "pyarrow.*"]
+module = ["pyarrow", "pyarrow.*", "scipy", "scipy.*"]
 ignore_missing_imports = true

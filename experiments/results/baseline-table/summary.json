@@ -1,0 +1,94 @@
+{
+  "plan": "baseline-table",
+  "code_commit": "b4f46e90fa4b194be34e799b714954542704845f",
+  "chosen_settings": {
+    "rating": "rating/reg=0.05",
+    "preference": "preference/reg=10.0/confidence=10.0"
+  },
+  "results": [
+    {
+      "stage": "new-users",
+      "model": "popularity",
+      "arms": 3,
+      "ndcg_mean": 0.11325067008789952,
+      "ndcg_min": 0.11152133819237915,
+      "ndcg_max": 0.1149337730123265,
+      "recall_mean": 0.1040354741881194,
+      "recall_min": 0.10025971219927698,
+      "recall_max": 0.10649623636875415,
+      "fit_seconds_mean": 0.3655953886664065
+    },
+    {
+      "stage": "random",
+      "model": "popularity",
+      "arms": 1,
+      "ndcg_mean": 0.059947258409970575,
+      "ndcg_min": 0.059947258409970575,
+      "ndcg_max": 0.059947258409970575,
+      "recall_mean": 0.07113261111111113,
+      "recall_min": 0.07113261111111113,
+      "recall_max": 0.07113261111111113,
+      "fit_seconds_mean": 0.3503114300001471
+    },
+    {
+      "stage": "random",
+      "model": "preference",
+      "arms": 1,
+      "ndcg_mean": 0.1602399434788613,
+      "ndcg_min": 0.1602399434788613,
+      "ndcg_max": 0.1602399434788613,
+      "recall_mean": 0.1879478253968254,
+      "recall_min": 0.1879478253968254,
+      "recall_max": 0.1879478253968254,
+      "fit_seconds_mean": 486.41418634799993
+    },
+    {
+      "stage": "random",
+      "model": "rating",
+      "arms": 1,
+      "ndcg_mean": 0.00916233211842859,
+      "ndcg_min": 0.00916233211842859,
+      "ndcg_max": 0.00916233211842859,
+      "recall_mean": 0.010956888888888886,
+      "recall_min": 0.010956888888888886,
+      "recall_max": 0.010956888888888886,
+      "fit_seconds_mean": 367.80422408100094
+    },
+    {
+      "stage": "test",
+      "model": "popularity",
+      "arms": 3,
+      "ndcg_mean": 0.03055254419518106,
+      "ndcg_min": 0.02923473876838107,
+      "ndcg_max": 0.03183645784290508,
+      "recall_mean": 0.03499630952380953,
+      "recall_min": 0.03348474603174603,
+      "recall_max": 0.03598514285714286,
+      "fit_seconds_mean": 0.3618316569997357
+    },
+    {
+      "stage": "test",
+      "model": "preference",
+      "arms": 6,
+      "ndcg_mean": 0.047830593339734925,
+      "ndcg_min": 0.04583616715448504,
+      "ndcg_max": 0.05084848339779739,
+      "recall_mean": 0.056100548941798944,
+      "recall_min": 0.053850706349206356,
+      "recall_max": 0.059928293650793656,
+      "fit_seconds_mean": 473.95155519366637
+    },
+    {
+      "stage": "test",
+      "model": "rating",
+      "arms": 6,
+      "ndcg_mean": 0.007177749299150954,
+      "ndcg_min": 0.005657534551778742,
+      "ndcg_max": 0.008086318601219228,
+      "recall_mean": 0.009617657407407408,
+      "recall_min": 0.00745431746031746,
+      "recall_max": 0.011140626984126987,
+      "fit_seconds_mean": 345.35895538933363
+    }
+  ]
+}
