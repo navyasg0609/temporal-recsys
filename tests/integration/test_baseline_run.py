@@ -12,7 +12,9 @@ from temporal_recsys.experiments.baseline import (
     BaselinePlan,
     load_plan,
     run_baseline,
+    tuning_grid,
 )
+from temporal_recsys.models.als import AlsVariant
 
 N_FILMS = 60
 CONFIG = SyntheticConfig(users=150, films=N_FILMS, ratings=6_000)
@@ -86,3 +88,12 @@ def test_registered_plan_loads() -> None:
     assert plan.test_cutoffs == (date(2005, 8, 1), date(2005, 9, 1), date(2005, 10, 1))
     assert plan.evaluation.max_users == 50_000
     assert plan.leakage_cutoff in plan.test_cutoffs
+
+
+def test_widened_plan_runs_preference_als_only() -> None:
+    plan = load_plan(Path("experiments/registered/baseline-table-v2.yaml"))
+
+    assert plan.rating_regularization == ()
+    assert plan.leakage_seeds == ()
+    assert all(config.variant is AlsVariant.PREFERENCE for config in tuning_grid(plan))
+    assert len(list(tuning_grid(plan))) == 9

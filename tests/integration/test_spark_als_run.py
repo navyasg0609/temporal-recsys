@@ -83,3 +83,11 @@ def test_pilot_plan_loads() -> None:
     assert plan.window_months == 12
     assert plan.test_cutoffs == ()
     assert len(plan.regularization) * len(plan.confidence) == 1
+
+
+def test_registered_plans_load() -> None:
+    main = load_plan(Path("experiments/registered/spark-als.yaml"))
+    full = load_plan(Path("experiments/registered/spark-full-history.yaml"))
+
+    assert main.confidence == (1.0, 3.0, 10.0)
+    assert full.split_at(full.tuning_cutoff).train_start == date(1999, 11, 1)
