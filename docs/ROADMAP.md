@@ -1,18 +1,18 @@
 # Roadmap
 
-**Status:** Phase 0 not started.
+**Status:** Phase 0 complete. Phase 1 is next.
 
 Update this file when a phase finishes. A phase is done only when its exit
 criteria have been demonstrated with real output.
 
 ## Phase 0: Foundations (2 days)
 
-- Initialize git, `pyproject.toml`, `uv` lockfile, Python 3.11, MIT license.
+- Initialize git, `pyproject.toml`, `uv` lockfile, Python 3.13, MIT license.
 - Add ruff, mypy, pytest, hypothesis and pre-commit.
 - Add GitHub Actions for lint, types and tests on every push.
 - Confirm the Netflix Prize data is available on Kaggle with dated ratings.
-- Confirm PySpark runs in a Kaggle CPU notebook, and record its real CPU, RAM,
-  disk and session limits.
+- Confirm PySpark runs in a Kaggle CPU notebook, and record its real CPU, RAM and
+  disk. The session limit needs a long run, so it moves to Phase 3.
 - Time one Spark read of the data on Kaggle.
 
 **Exit:** CI is green on a trivial test, and the Kaggle Spark check is recorded in
@@ -46,6 +46,7 @@ planted drift in synthetic data.
 - Tune on the sample, tracking runs in MLflow.
 - Time one full-data run, then decide the compute platform and the run budget for
   Phase 4 (see `docs/PROJECT_OVERVIEW.md`).
+- Record Kaggle's real session limit from that run.
 
 **Exit:** Spark ALS beats the popularity baseline on the temporal split, or the
 reason it does not is understood and documented.
