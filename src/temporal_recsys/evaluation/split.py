@@ -29,6 +29,12 @@ def add_months(day: date, months: int) -> date:
     return date(index // 12, index % 12 + 1, 1)
 
 
+def window_before(cutoff: date, window_months: int, test_months: int) -> TemporalSplit:
+    return TemporalSplit(
+        add_months(cutoff, -window_months), cutoff, add_months(cutoff, test_months)
+    )
+
+
 def split_by_time(ratings: RatingArrays, split: TemporalSplit) -> tuple[RatingArrays, RatingArrays]:
     days = ratings.days
     train = (days >= np.datetime64(split.train_start)) & (days < np.datetime64(split.cutoff))
