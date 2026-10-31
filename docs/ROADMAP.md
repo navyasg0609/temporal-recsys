@@ -1,6 +1,6 @@
 # Roadmap
 
-**Status:** Phases 0 and 1 complete. Phase 2 is next.
+**Status:** Phases 0, 1 and 2 complete. Phase 3 is next.
 
 Update this file when a phase finishes. A phase is done only when its exit
 criteria have been demonstrated with real output.

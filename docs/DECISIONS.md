@@ -109,3 +109,10 @@ prediction and preference weighting can rank films very differently.
 
 This corrects decision 012, which mentioned only writes. Spark also fails to read Parquet
 here without native Hadoop tools, so Spark code is tested in CI and on Kaggle.
+
+## 019: Use preference ALS as the ALS baseline
+
+Preference ALS beat rating ALS and popularity on every temporal cutoff, with no overlap in
+ranges (`docs/LAB_NOTEBOOK.md`). Comparing later models with rating ALS would set too low a
+bar, so Spark ALS uses the preference form and the Two-Tower model must beat this result.
+Rating ALS and popularity stay in the reported table.

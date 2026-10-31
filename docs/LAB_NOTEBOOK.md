@@ -118,3 +118,71 @@ gap. New users fall 88.6%, active users fall 21.2%, and ratings per active user 
 who joined near the end are missing. The data fits this, but cannot confirm it.
 
 **What it changes:** test periods stop at October 2005 (decision 016).
+
+## 2026-10-31: Baseline table
+
+**Expected:** see the prediction in `experiments/registered/baseline-table.yaml`.
+
+**Ran:** `trs baseline` on a Kaggle CPU notebook (4 cores, 31.3 GB) at commit `b4f46e9`. All
+28 arms finished in one session of about 2 hours 28 minutes. Results are in
+`experiments/results/baseline-table/`.
+
+**Chosen on the July tuning cutoff:** rating ALS with `reg=0.05`, and preference ALS with
+`reg=10` and `confidence=10`.
+
+**Temporal test, 12-month window, known users. Mean and range across cutoffs and seeds:**
+
+| Model | Arms | NDCG@10 | Recall@10 | Mean fit seconds |
+|---|---|---|---|---|
+| Preference ALS | 6 | 0.0478 (0.0458 to 0.0508) | 0.0561 (0.0539 to 0.0599) | 474.0 |
+| Popularity | 3 | 0.0306 (0.0292 to 0.0318) | 0.0350 (0.0335 to 0.0360) | 0.36 |
+| Rating ALS | 6 | 0.0072 (0.0057 to 0.0081) | 0.0096 (0.0075 to 0.0111) | 345.4 |
+
+Popularity needs one arm per cutoff, because it has no random start. The ranges do not
+overlap, so the plan's rule for "no clear difference" does not apply. Standard errors across
+sampled users are about 0.0002 to 0.0005.
+
+**Random split against temporal split, October 2005 cutoff, seed 1, NDCG@10:**
+
+| Model | Temporal | Random | Ratio |
+|---|---|---|---|
+| Preference ALS | 0.0464 | 0.1602 | 3.45 |
+| Popularity | 0.0306 | 0.0599 | 1.96 |
+| Rating ALS | 0.0081 | 0.0092 | 1.13 |
+
+The random split also widens preference ALS's lead over popularity, from 1.52 times at this
+cutoff to 2.67 times. This is one seed at one cutoff. It also tests a different group of
+users: 365,836 are eligible against 174,666 on the temporal split, because the temporal test
+month contains only users active in that month. The ratios therefore combine leakage with
+that change of group, and should not be read as leakage alone.
+
+**New users, popularity only:** NDCG@10 0.1133 (0.1115 to 0.1149), Recall@10 0.1040 (0.1003
+to 0.1065), over 21,124 to 24,474 users. This cannot be compared with the known-user score.
+Known users have already rated many popular films, and those are removed from their lists,
+while new users have none removed.
+
+**Prediction check:**
+
+- Preference ALS beats rating ALS: confirmed.
+- Rating ALS may lose to popularity: confirmed. Popularity scores 4.26 times higher.
+- Popularity is hard to beat: partly confirmed. Preference ALS beats it by 1.57 times on
+  average, at a cost of about 474 seconds of fitting against 0.36.
+- Random splits score higher for the personalized models: confirmed, but very unevenly.
+
+**Surprises:**
+
+- The preference ALS `reg` setting made no real difference. At `confidence=10`, `reg=1` and
+  `reg=10` differ by 0.0000007 in NDCG@10, against a standard error of 0.0005. So the choice
+  of `reg=10` is noise. The likely reason is that the penalty is tiny next to the other terms
+  in the equation, but this was not tested. The grid effectively tested only `confidence`.
+- The better `confidence`, 10, is the lowest value in the grid, so a lower value might score
+  higher. Tuning cannot be revisited under this plan.
+- Rating ALS is sensitive to its setting: NDCG@10 runs from 0.0034 to 0.0098 across the grid.
+
+**Limits:** one hardware setup, one window length and two seeds. Fit times are single-machine
+NumPy and SciPy on Kaggle, and say nothing about Spark. They are not the training latency
+from Phase 3. Offline scores favor popular films, and an unbiased test of recommendations
+would need live users.
+
+**What it changes:** preference ALS is the ALS baseline from here on (decision 019). Any new
+model must beat it. Any future grid must reach past its best value in every direction.
