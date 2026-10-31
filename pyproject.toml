@@ -6,7 +6,7 @@ readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
 authors = [{ name = "Navya S G" }]
-requires-python = ">=3.11,<3.12"
+requires-python = ">=3.13,<3.14"
 dependencies = []
 
 [dependency-groups]
@@ -32,7 +32,7 @@ markers = ["spark: needs a local Spark session"]
 
 [tool.ruff]
 line-length = 100
-target-version = "py311"
+target-version = "py313"
 
 [tool.ruff.lint]
 select = ["B", "E", "F", "I", "N", "RUF", "S", "SIM", "UP", "W"]
@@ -43,6 +43,6 @@ ignore = ["N812"]
 "tests/**" = ["S101"]
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.13"
 strict = true
 files = ["src", "tests"]
