@@ -52,9 +52,10 @@ point where adding more data stops being worth it, if such a point exists.
 
 ### The data
 
-We plan to use the **Netflix Prize dataset**, which has about 100 million ratings of
-about 17,770 films. Each rating has a date, which this question requires. We still
-need to confirm that it can be downloaded, and that step comes first.
+We use the **Netflix Prize dataset**, which has 100,480,507 ratings of 17,770 films,
+dated from November 1999 to December 2005. Each rating has a date, which this question
+requires. We confirmed this on Kaggle, and the check is in the
+[lab notebook](LAB_NOTEBOOK.md).
 
 The data will not be stored in this repository, because we should not redistribute
 it. Automatic tests will use **synthetic data** instead, meaning fake ratings we

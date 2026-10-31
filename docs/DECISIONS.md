@@ -61,3 +61,10 @@ close to matrix factorization and Rendle et al. (2020) found dot-product models 
 to beat. LightGCN was rejected for now because propagating over about 100M edges is
 heavy for limited memory, while Two-Tower trains in small batches. Both models output
 embeddings, so the serving design in decision 006 does not change.
+
+## 011: Confirm the dataset and pin Python 3.13 with PySpark 4.0.4
+
+The check in `docs/LAB_NOTEBOOK.md` confirms decision 002: the dated ratings are
+available and every line parses. The project moves from Python 3.11 to 3.13 to match
+Kaggle, because a different local version could hide failures until a remote run.
+PySpark 4.0.4 is pinned when Phase 1 first depends on it.
