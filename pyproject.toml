@@ -36,6 +36,8 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["B", "E", "F", "I", "N", "RUF", "S", "SIM", "UP", "W"]
+# `functions as F` is the standard PySpark import.
+ignore = ["N812"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["S101"]
