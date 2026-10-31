@@ -12,7 +12,10 @@ dependencies = []
 [dependency-groups]
 dev = [
     "hypothesis>=6",
+    "mypy>=1.10",
+    "pre-commit>=3.7",
     "pytest>=8",
+    "ruff>=0.5",
 ]
 
 [build-system]
@@ -26,3 +29,18 @@ packages = ["src/temporal_recsys"]
 testpaths = ["tests"]
 addopts = "--strict-markers"
 markers = ["spark: needs a local Spark session"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["B", "E", "F", "I", "N", "RUF", "S", "SIM", "UP", "W"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+files = ["src", "tests"]
