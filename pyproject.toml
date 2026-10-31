@@ -13,6 +13,9 @@ dependencies = [
     "pyspark==4.0.4",
 ]
 
+[project.scripts]
+trs = "temporal_recsys.cli:main"
+
 [dependency-groups]
 dev = [
     "hypothesis>=6",
