@@ -1,0 +1,32 @@
+{
+  "plan": "experiments/registered/read-benchmark.yaml",
+  "code_commit": "45f72d10e86f8391e19d227e27041d306ea7009e",
+  "machine": {"platform": "Kaggle CPU notebook", "cpu_count": 4, "memory_gb": 31.3, "python": "3.13.15", "spark": "4.0.4"},
+  "note": "Seconds rounded to three decimals. Each run has one warm-up pass, excluded here, and five measured passes. Both runs used one notebook session.",
+  "windows": {
+    "3": {"rows_matched": 11167443, "eligible_bytes": {"flat": 558585494, "date_sorted": 327091379, "monthly": 56537774}},
+    "12": {"rows_matched": 53250073, "eligible_bytes": {"flat": 558585494, "date_sorted": 327091379, "monthly": 268863292}}
+  },
+  "runs": {
+    "1": {
+      "read": {
+        "3": {"flat": [1.943, 2.076, 2.153], "date_sorted": [1.087, 1.152, 1.200], "monthly": [0.444, 0.484, 0.527]},
+        "12": {"flat": [3.247, 3.394, 3.594], "date_sorted": [2.681, 2.719, 3.082], "monthly": [1.981, 2.095, 2.786]}
+      },
+      "aggregate": {
+        "3": {"flat": [1.494, 1.524, 1.584], "date_sorted": [0.890, 0.918, 0.942], "monthly": [0.478, 0.543, 0.561]},
+        "12": {"flat": [2.417, 2.437, 2.694], "date_sorted": [1.890, 1.986, 2.209], "monthly": [1.482, 1.564, 1.674]}
+      }
+    },
+    "2": {
+      "read": {
+        "3": {"flat": [2.248, 2.328, 2.441], "date_sorted": [1.133, 1.154, 1.169], "monthly": [0.483, 0.568, 0.616]},
+        "12": {"flat": [3.519, 3.580, 3.674], "date_sorted": [2.666, 2.686, 3.008], "monthly": [2.011, 2.091, 2.131]}
+      },
+      "aggregate": {
+        "3": {"flat": [1.778, 1.817, 1.852], "date_sorted": [0.912, 0.946, 1.074], "monthly": [0.516, 0.555, 0.636]},
+        "12": {"flat": [2.653, 2.699, 2.806], "date_sorted": [2.042, 2.157, 2.273], "monthly": [1.680, 1.704, 1.776]}
+      }
+    }
+  }
+}

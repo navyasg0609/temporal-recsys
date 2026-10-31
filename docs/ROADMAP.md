@@ -1,6 +1,6 @@
 # Roadmap
 
-**Status:** Phase 0 complete. Phase 1 is next.
+**Status:** Phases 0 and 1 complete. Phase 2 is next.
 
 Update this file when a phase finishes. A phase is done only when its exit
 criteria have been demonstrated with real output.
@@ -23,7 +23,7 @@ criteria have been demonstrated with real output.
 - Parse raw files into a typed schema with validation.
 - Write Parquet partitioned by rating month.
 - Build a synthetic generator with a planted temporal drift.
-- Benchmark reads for a fixed window: unpartitioned Parquet against partitioned.
+- Benchmark reads for fixed windows: flat, date-sorted and partitioned Parquet.
   Register the benchmark first. Report read time and total job time separately.
 - Add a data card describing the dataset, its limits and its privacy history.
 
@@ -31,6 +31,7 @@ criteria have been demonstrated with real output.
 
 ## Phase 2: Evaluation and baselines (1 week)
 
+- Examine the late-2005 drop in ratings before fixing test periods.
 - Implement the temporal split, NDCG@10 and Recall@10.
 - Test metrics against hand-computed answers.
 - Add property tests that no training row is at or after the cutoff.

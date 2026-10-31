@@ -68,3 +68,21 @@ The check in `docs/LAB_NOTEBOOK.md` confirms decision 002: the dated ratings are
 available and every line parses. The project moves from Python 3.11 to 3.13 to match
 Kaggle, because a different local version could hide failures until a remote run.
 PySpark 4.0.4 is pinned when Phase 1 first depends on it.
+
+## 012: Parse raw files in Python, run Spark on Linux only
+
+Each rating gets its film ID from a header line above it, and Spark splits files into
+chunks that can separate the two. Reading in order with plain Python avoids that bug
+and can be tested without Spark. Spark then handles partitioning. Spark file writes on
+Windows need extra native tools, so Spark tests run in CI and on Kaggle, not locally.
+
+## 013: Run Kaggle jobs from an exact commit
+
+Kaggle notebooks clone the repository at a full commit ID and install it from there.
+The results record that ID, so every number traces back to the code that produced it.
+
+## 014: Keep month partitions, and report rows alongside window length
+
+Monthly partitions were the fastest layout in the read benchmark on both windows, so
+later phases read from them. Ratings are heavily skewed toward 2005, so a window's
+length does not describe its size. Results must report the rows used as well.

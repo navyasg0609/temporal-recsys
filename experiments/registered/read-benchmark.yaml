@@ -1,0 +1,57 @@
+id: read-benchmark
+version: 1
+registered_on: "2026-10-31"
+supersedes: null
+change_reason: null
+
+question: >-
+  How much time does month partitioning save when reading a recent window of ratings,
+  compared with flat Parquet and with flat Parquet sorted by date?
+prediction: >-
+  Partitioning beats unsorted flat Parquet on both windows. The saving is smaller on
+  the 12-month window, because recent months hold more ratings. Date-sorted flat
+  Parquet recovers much of the benefit through row group statistics.
+
+data:
+  dataset: Netflix Prize, 100,480,507 ratings
+  source_revision: Kaggle copy checked in docs/LAB_NOTEBOOK.md on 2026-10-31
+  partition_scheme: one folder per rating month
+
+design:
+  baseline: flat Parquet in source order, with no date sorting
+  treatments:
+    - date_sorted
+    - monthly
+  windows:
+    last_month: "2005-12"
+    months: [3, 12]
+  tasks:
+    - read
+    - aggregate
+  repetitions: 5
+  warmup_passes: 1
+  seed: 2026
+
+measurement:
+  primary_metric: median seconds for the read task
+  secondary_metrics:
+    - median seconds for the aggregate task
+    - rows matched
+    - bytes in files each layout must consider
+  what_is_timed: >-
+    read loads all four columns for matching rows into a no-op sink. aggregate computes
+    the count and mean stars per film into a no-op sink. Neither times model training.
+  hardware: Kaggle CPU notebook, 4 cores, 31.3 GB memory
+  repetitions: 5
+
+analysis:
+  uncertainty_method: minimum, median and maximum across the five measured passes
+  exclusions: >-
+    The warm-up pass is excluded. Arm order is shuffled in every pass. The operating
+    system file cache cannot be cleared on Kaggle, so times reflect a warm cache.
+  what_would_change_the_conclusion: >-
+    If the range of a layout overlaps the range of the flat baseline, report no clear
+    difference. If layouts match different row counts, the benchmark is invalid.
+  known_limitations: >-
+    File bytes overstate what date_sorted reads, because it can skip row groups inside
+    a file. Time saved here is read time, not training time.
