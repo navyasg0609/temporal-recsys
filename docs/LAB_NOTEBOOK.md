@@ -186,3 +186,31 @@ would need live users.
 
 **What it changes:** preference ALS is the ALS baseline from here on (decision 019). Any new
 model must beat it. Any future grid must reach past its best value in every direction.
+
+## 2026-10-31: Spark pilot
+
+**Expected:** see `experiments/registered/spark-pilot.yaml`. Spark would be slower than the
+422 seconds NumPy preference ALS took on this window.
+
+**Ran:** `trs spark-als` on a Kaggle CPU notebook (4 cores, 31.3 GB, Spark local mode, 20 GB
+driver) at commit `12212e1`. One arm on the 12-month tuning window, with 44,209,042 rows.
+
+| Part | Seconds |
+|---|---|
+| Read and cache | 18.2 |
+| Fit | 346.9 |
+| Copy factors | 5.7 |
+
+NDCG@10 was 0.0522 and Recall@10 was 0.0604, both on the tuning cutoff.
+
+**What happened:** the prediction was wrong. Spark's fit was faster than NumPy's 422 seconds.
+A likely reason is that Spark used all 4 cores while the NumPy model solves one row at a time
+in Python, but this was not tested. The two runs came from different sessions, so this is one
+rough comparison, not a benchmark.
+
+**Limits:** one run, with no spread. The penalty differs from the NumPy model's. The score is
+a check that the model learned something, not a result.
+
+**What it changes:** an arm takes minutes, so the later plans run on Kaggle at full size. The
+read was about 4.9% of this job, so the saving from partitioning cannot exceed that share on
+this window. `training-latency` measures it directly.

@@ -1,0 +1,14 @@
+{
+  "plan": "spark-pilot",
+  "code_commit": "12212e1b11a4c2c47ed23a03df72cbcee8cdf6b2",
+  "machine": {
+    "cpu_count": 4,
+    "spark": "4.0.4",
+    "master": "local[*]",
+    "driver_memory": "20g"
+  },
+  "chosen_settings": {
+    "spark": "spark/reg=0.05/confidence=10.0"
+  },
+  "results": []
+}
