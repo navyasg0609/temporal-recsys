@@ -12,6 +12,8 @@ from temporal_recsys.data.pipeline import ingest
 from temporal_recsys.data.quality import NETFLIX_PRIZE
 from temporal_recsys.data.spark import create_spark_session
 from temporal_recsys.data.synthetic import SyntheticConfig, generate_ratings, write_raw_file
+from temporal_recsys.experiments.baseline import load_plan as load_baseline_plan
+from temporal_recsys.experiments.baseline import run_baseline
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -36,7 +38,21 @@ def build_parser() -> argparse.ArgumentParser:
     benchmark.add_argument("--output", type=Path, required=True)
     benchmark.add_argument("--code-commit", required=True)
     benchmark.add_argument("--driver-memory", default="2g")
+
+    baseline = commands.add_parser("baseline", help="compare baselines on a registered plan")
+    baseline.add_argument("--monthly-dir", type=Path, required=True)
+    baseline.add_argument("--plan", type=Path, required=True)
+    baseline.add_argument("--output-dir", type=Path, required=True)
+    baseline.add_argument("--code-commit", required=True)
     return parser
+
+
+def run_baseline_command(args: argparse.Namespace) -> int:
+    summary = run_baseline(
+        args.monthly_dir, load_baseline_plan(args.plan), args.output_dir, args.code_commit
+    )
+    print(json.dumps(summary, indent=2))
+    return 0
 
 
 def run_benchmark_command(args: argparse.Namespace) -> int:
@@ -83,6 +99,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         "synthetic": run_synthetic,
         "ingest": run_ingest,
         "benchmark": run_benchmark_command,
+        "baseline": run_baseline_command,
     }
     return commands[args.command](args)
 

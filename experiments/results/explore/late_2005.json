@@ -1,0 +1,19 @@
+{
+  "source": "scripts/kaggle_explore.py on a Kaggle CPU notebook, 2026-10-31",
+  "qualifying_total": 2817131,
+  "probe_total": 1408395,
+  "months": [
+    {"month": "2005-01", "ratings": 4698197, "active_users": 196145, "active_films": 15437, "new_users": 25462, "probe": 24385, "qualifying": 48216},
+    {"month": "2005-02", "ratings": 4104160, "active_users": 199232, "active_films": 15751, "new_users": 18604, "probe": 28963, "qualifying": 58455},
+    {"month": "2005-03", "ratings": 4310242, "active_users": 207279, "active_films": 16133, "new_users": 17626, "probe": 38620, "qualifying": 77068},
+    {"month": "2005-04", "ratings": 4163988, "active_users": 208769, "active_films": 16393, "new_users": 16425, "probe": 40214, "qualifying": 81117},
+    {"month": "2005-05", "ratings": 4388899, "active_users": 209439, "active_films": 16612, "new_users": 15382, "probe": 45260, "qualifying": 89966},
+    {"month": "2005-06", "ratings": 5296431, "active_users": 220132, "active_films": 16785, "new_users": 20875, "probe": 68636, "qualifying": 136896},
+    {"month": "2005-07", "ratings": 4945586, "active_users": 215195, "active_films": 16991, "new_users": 18527, "probe": 72918, "qualifying": 145595},
+    {"month": "2005-08", "ratings": 5261590, "active_users": 225055, "active_films": 17279, "new_users": 21200, "probe": 93694, "qualifying": 188044},
+    {"month": "2005-09", "ratings": 4913537, "active_users": 219677, "active_films": 17331, "new_users": 22856, "probe": 102967, "qualifying": 206020},
+    {"month": "2005-10", "ratings": 5156753, "active_users": 223662, "active_films": 17653, "new_users": 24372, "probe": 150339, "qualifying": 300115},
+    {"month": "2005-11", "ratings": 3605112, "active_users": 207378, "active_films": 17260, "new_users": 8717, "probe": 244652, "qualifying": 490104},
+    {"month": "2005-12", "ratings": 2405578, "active_users": 176259, "active_films": 17320, "new_users": 2777, "probe": 392232, "qualifying": 785058}
+  ]
+}

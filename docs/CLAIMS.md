@@ -15,3 +15,6 @@ number is not in this table, it is not published.
 | Read time saved by monthly partitions, 12-month window, against flat Parquet | 38.3% to 41.6% | Kaggle CPU notebook, 4 cores, 31.3 GB | read-benchmark runs 1 and 2 | `trs benchmark` | `45f72d1` |
 | Read time saved by date sorting, 3-month window, against flat Parquet | 44.5% to 50.4% | Kaggle CPU notebook, 4 cores, 31.3 GB | read-benchmark runs 1 and 2 | `trs benchmark` | `45f72d1` |
 | Read time saved by date sorting, 12-month window, against flat Parquet | 19.9% to 25.0% | Kaggle CPU notebook, 4 cores, 31.3 GB | read-benchmark runs 1 and 2 | `trs benchmark` | `45f72d1` |
+| Qualifying entries found | 2,817,131 | Kaggle CPU notebook | 2026-10-31 explore | `scripts/kaggle_explore.py` | see LAB_NOTEBOOK |
+| Share of the October to December 2005 gap closed by the qualifying set | 17.6% | Kaggle CPU notebook | 2026-10-31 explore | `scripts/kaggle_explore.py` | see LAB_NOTEBOOK |
+| New users, October to December 2005 | 88.6% fewer | Kaggle CPU notebook | 2026-10-31 explore | `scripts/kaggle_explore.py` | see LAB_NOTEBOOK |

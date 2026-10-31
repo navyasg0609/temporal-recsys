@@ -86,3 +86,26 @@ The results record that ID, so every number traces back to the code that produce
 Monthly partitions were the fastest layout in the read benchmark on both windows, so
 later phases read from them. Ratings are heavily skewed toward 2005, so a window's
 length does not describe its size. Results must report the rows used as well.
+
+## 015: Rank against the full catalog, with relevance at 4 or 5 stars
+
+Each user's list ranks all 17,770 films, minus those rated in training. Sampled negatives
+can distort results (Krichene and Rendle, 2020). A test rating of 4 or 5 stars counts as
+relevant. Both metrics divide by the most hits possible at k, so a perfect list scores 1.0.
+
+## 016: Test on August to October 2005, and tune on July
+
+The check in `docs/LAB_NOTEBOOK.md` shows the last two months are distorted: 12.0% and
+24.6% of ratings are held back, and new users fall 88.6% from October to December. Earlier
+months hold back at most 5.5%. Settings are chosen on July and never revisited.
+
+## 017: Run baselines with NumPy and SciPy
+
+The popularity baseline and single-machine ALS exist partly to test whether Spark is needed,
+so they must not depend on it. Both ALS variants stay in the comparison because rating
+prediction and preference weighting can rank films very differently.
+
+## 018: Spark does not run on this Windows machine
+
+This corrects decision 012, which mentioned only writes. Spark also fails to read Parquet
+here without native Hadoop tools, so Spark code is tested in CI and on Kaggle.

@@ -43,8 +43,10 @@ The last 12 months hold more than half of all ratings. A window's length in mont
 therefore says little about its size, so results must also report rows used.
 
 Monthly counts peak in 2005 and then fall sharply, from 5,156,753 in October to
-2,405,578 in December. The cause is unknown. It should be examined before choosing
-test periods.
+2,405,578 in December. Ratings held back for the competition explain only 17.6% of that
+gap. New users also fall 88.6% over those months, which fits a selection rule that left
+out people who joined near the end, although the data cannot confirm this. November and
+December 2005 are excluded from test periods for this reason.
 
 ## Distribution of ratings
 

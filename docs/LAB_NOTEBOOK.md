@@ -92,3 +92,29 @@ stability across machines. Ingest duration was not recorded.
 
 **What it changes:** results must report rows used alongside window length, and Phase 2
 must look at the late-2005 drop before fixing test periods.
+
+## 2026-10-31: Why monthly ratings fall at the end of 2005
+
+**Expected:** the fall comes from the ratings organizers held back as the qualifying set.
+
+**Ran:** `scripts/kaggle_explore.py` on a Kaggle CPU notebook. It found the full qualifying
+set of 2,817,131 entries and matched all 1,408,395 probe entries to ratings. Figures for
+2005 are in `experiments/results/explore/late_2005.json`.
+
+**What happened:** the expectation was mostly wrong. Ratings fall 53.4% from October to
+December. Adding the qualifying set back only reduces that to 41.5%, closing 17.6% of the
+gap. New users fall 88.6%, active users fall 21.2%, and ratings per active user fall from
+23.06 to 13.65.
+
+| Month | Ratings | Held back share | New users |
+|---|---|---|---|
+| 2005-08 | 5,261,590 | 3.5% | 21,200 |
+| 2005-09 | 4,913,537 | 4.0% | 22,856 |
+| 2005-10 | 5,156,753 | 5.5% | 24,372 |
+| 2005-11 | 3,605,112 | 12.0% | 8,717 |
+| 2005-12 | 2,405,578 | 24.6% | 2,777 |
+
+**Hypothesis, not proven:** the organizers kept only users with enough ratings, so people
+who joined near the end are missing. The data fits this, but cannot confirm it.
+
+**What it changes:** test periods stop at October 2005 (decision 016).
