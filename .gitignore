@@ -1,0 +1,41 @@
+# Data and generated artifacts
+/data/
+/artifacts/
+/mlruns/
+*.parquet
+*.tar.gz
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.ipynb_checkpoints/
+
+# Secrets
+.env
+.env.*
+kaggle.json
+
+# LaTeX build output
+report/*.aux
+report/*.bbl
+report/*.blg
+report/*.log
+report/*.out
+report/*.synctex.gz
+
+# Local tooling configuration
+CLAUDE.md
+CLAUDE.local.md
+.claude/
+
+# OS and editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
