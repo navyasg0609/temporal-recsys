@@ -379,3 +379,51 @@ Recall@10 was 0.1319, on the tuning cutoff.
 at about twice that is more likely to reveal a flaw than a breakthrough, and the random split in
 the baseline table shows how easily this metric inflates. No full plan is registered until the
 gain is explained. `experiments/registered/two-tower-diagnostic.yaml` tests the explanations.
+
+## 2026-11-01: Why the two-tower pilot scored so high
+
+**Expected:** see `experiments/registered/two-tower-diagnostic.yaml`. Recency would explain most
+of the gain, with no drop from removing unseen films or title and year features.
+
+**Ran:** `trs two-tower-diagnostic` on a Kaggle GPU notebook (one Tesla T4, 4 cores, 31.3 GB) at
+commit `f323dfe`, on the July 2005 tuning cutoff only, with one seed. Every arm shares the same
+50,000 users and removes the same seen films. Training ended on 2005-06-30, and the test began on
+2005-07-01.
+
+| Arm | NDCG@10 | Standard error |
+|---|---|---|
+| Popularity, 12 months | 0.0337 | 0.0004 |
+| Preference ALS, 12 months | 0.0522 | 0.0005 |
+| Popularity, 3 months | 0.0711 | 0.0006 |
+| Preference ALS, 1 month | 0.0725 | 0.0006 |
+| Preference ALS, 3 months | 0.0769 | 0.0006 |
+| Popularity, 1 month | 0.0899 | 0.0007 |
+| Two-tower, IDs only | 0.1121 | 0.0008 |
+| Two-tower, all features | 0.1135 | 0.0008 |
+| Two-tower, films absent from training removed | 0.1136 | 0.0008 |
+
+**What happened:** the prediction held, and the gain is not a catalog leak. Removing the 637 films
+absent from training changed nothing, and those films hold only 0.03% of relevant test ratings.
+Title and year features added little, 0.1135 against 0.1121 on one seed.
+
+Most of the gap is recency. Popularity trained on the last month alone scored 2.67 times its
+12-month score. That is higher than preference ALS on any window tested here, and much simpler.
+The two-tower model still scored 1.26 times higher than 1-month popularity.
+
+**This corrects an earlier conclusion.** The baseline table compared models with 12-month
+popularity only. Preference ALS beat that baseline, but on this cutoff it loses clearly to a
+popularity count over the last month. Beating popularity was a weaker test than it looked, so later
+results also report recent popularity.
+
+**Also seen:** the same seed gave 0.1123 in the pilot and 0.1135 here, so GPU training is not
+exactly repeatable. NumPy ALS repeated its earlier score to every digit.
+
+**Hypothesis, not proven:** July's ratings concentrate on recent releases, which the service also
+promotes, so recency may partly reflect what people were shown.
+
+**Limits:** one seed on one cutoff. A short-window model gives zero scores to users with no
+ratings in that window, which lowers its score.
+
+**What it changes:** the two-tower plan adds 1-month popularity on the test cutoffs, and uses 3
+tuning settings to keep this version basic. The result also points to a strong answer to the main
+question, which Phase 4 must test properly.
