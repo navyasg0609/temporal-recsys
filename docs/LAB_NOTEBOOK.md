@@ -363,3 +363,19 @@ CPU notebooks used for ALS. One matrix product is a working check, not a benchma
 
 **What it changes:** the model uses one T4, titles and release years are available, and PyTorch
 stays an optional extra so that Kaggle keeps its own GPU build.
+
+## 2026-11-01: Two-tower pilot
+
+**Expected:** see `experiments/registered/two-tower-pilot.yaml`. The arm would finish within an
+hour and score well above zero.
+
+**Ran:** `trs two-tower` on a Kaggle GPU notebook (one Tesla T4, 4 cores, 31.3 GB) at commit
+`85444be`. One untuned arm on the 12-month tuning window, with 44,209,042 rows and 3 epochs.
+
+**What happened:** both expectations held. Training took 376.3 seconds. NDCG@10 was 0.1123 and
+Recall@10 was 0.1319, on the tuning cutoff.
+
+**Why this is not accepted yet:** the best ALS score on this cutoff was 0.0528. An untuned model
+at about twice that is more likely to reveal a flaw than a breakthrough, and the random split in
+the baseline table shows how easily this metric inflates. No full plan is registered until the
+gain is explained. `experiments/registered/two-tower-diagnostic.yaml` tests the explanations.
