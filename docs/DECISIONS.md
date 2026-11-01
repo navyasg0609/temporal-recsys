@@ -116,3 +116,31 @@ Preference ALS beat rating ALS and popularity on every temporal cutoff, with no 
 ranges (`docs/LAB_NOTEBOOK.md`). Comparing later models with rating ALS would set too low a
 bar, so Spark ALS uses the preference form and the Two-Tower model must beat this result.
 Rating ALS and popularity stay in the reported table.
+
+## 020: Skip MLflow
+
+The roadmap planned MLflow to track runs. `arms.jsonl` and `docs/CLAIMS.md` already tie each number
+to its settings and commit, so MLflow would add a dependency and add no evidence.
+
+## 021: Tune Spark ALS on the July cutoff, not on a sample
+
+The roadmap planned to tune on a sample. Tuning on the same cutoff and rows as the NumPy model keeps
+the comparison fair, and the pilot showed an arm takes only minutes.
+
+## 022: Keep single-machine runs on Kaggle
+
+This partly settles decision 009. One Spark fit on 89,313,064 ratings took 676 seconds on a free
+Kaggle CPU notebook, so ALS needs no paid compute. Kaggle offers one machine, so whether to run on
+several machines stays open. The GPU for Phase 3b is confirmed in that phase.
+
+## 023: Use Spark ALS for the main experiment
+
+Spark and NumPy showed no clear difference in quality, and Spark's fit was 23.7% shorter on the same
+hardware. Spark therefore runs the main experiment, with `reg=0.01` and `confidence=3`. The later
+Two-Tower model must beat the better of the two ALS results, which refines decision 019.
+
+## 024: Do not claim that partitioning shortens training
+
+Monthly partitions read faster, but training showed no clear whole-job saving, because reading is
+about 3 to 4% of the job. They stay as the storage layout (decision 014). The time saved by a short
+window comes from using fewer rows, and it is reported as that.
