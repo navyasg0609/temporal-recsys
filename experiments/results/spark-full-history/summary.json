@@ -1,0 +1,14 @@
+{
+  "plan": "spark-full-history",
+  "code_commit": "47d06a73c3abdd323e6e2608a7aad6de887e0696",
+  "machine": {
+    "cpu_count": 4,
+    "spark": "4.0.4",
+    "master": "local[*]",
+    "driver_memory": "20g"
+  },
+  "chosen_settings": {
+    "spark": "spark/reg=0.05/confidence=10.0"
+  },
+  "results": []
+}

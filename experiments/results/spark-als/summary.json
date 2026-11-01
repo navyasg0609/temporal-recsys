@@ -1,0 +1,27 @@
+{
+  "plan": "spark-als",
+  "code_commit": "47d06a73c3abdd323e6e2608a7aad6de887e0696",
+  "machine": {
+    "cpu_count": 4,
+    "spark": "4.0.4",
+    "master": "local[*]",
+    "driver_memory": "20g"
+  },
+  "chosen_settings": {
+    "spark": "spark/reg=0.01/confidence=3.0"
+  },
+  "results": [
+    {
+      "stage": "test",
+      "model": "spark",
+      "arms": 6,
+      "ndcg_mean": 0.04911516772347239,
+      "ndcg_min": 0.047655805112015816,
+      "ndcg_max": 0.0519766273023862,
+      "recall_mean": 0.057342371693121695,
+      "recall_min": 0.055092293650793656,
+      "recall_max": 0.06077180952380951,
+      "fit_seconds_mean": 370.0855761693322
+    }
+  ]
+}

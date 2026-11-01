@@ -1,0 +1,63 @@
+{
+  "plan": "training-latency",
+  "code_commit": "47d06a73c3abdd323e6e2608a7aad6de887e0696",
+  "machine": {
+    "spark": "4.0.4",
+    "master": "local[*]",
+    "driver_memory": "20g"
+  },
+  "results": [
+    {
+      "window_months": 3,
+      "layout": "flat",
+      "rows": 15120713,
+      "passes": 3,
+      "read_seconds_median": 5.373177833000227,
+      "fit_seconds_median": 134.69338267200146,
+      "collect_seconds_median": 3.6783164190019306,
+      "total_seconds_median": 143.58816375400056,
+      "total_seconds_min": 142.2015946870015,
+      "total_seconds_max": 154.382886039999,
+      "saving_against_flat": 0.0
+    },
+    {
+      "window_months": 3,
+      "layout": "monthly",
+      "rows": 15120713,
+      "passes": 3,
+      "read_seconds_median": 3.922329600001831,
+      "fit_seconds_median": 134.03714075600146,
+      "collect_seconds_median": 3.617327402000228,
+      "total_seconds_median": 141.86301849000301,
+      "total_seconds_min": 139.82770304699807,
+      "total_seconds_max": 145.27240478900057,
+      "saving_against_flat": 0.01201453670619479
+    },
+    {
+      "window_months": 12,
+      "layout": "flat",
+      "rows": 51585504,
+      "passes": 3,
+      "read_seconds_median": 12.068579206999857,
+      "fit_seconds_median": 401.8805571039993,
+      "collect_seconds_median": 5.153791964999982,
+      "total_seconds_median": 420.79935739199937,
+      "total_seconds_min": 396.25423810600114,
+      "total_seconds_max": 451.3935211600001,
+      "saving_against_flat": 0.0
+    },
+    {
+      "window_months": 12,
+      "layout": "monthly",
+      "rows": 51585504,
+      "passes": 3,
+      "read_seconds_median": 10.525488262999716,
+      "fit_seconds_median": 390.3114303179973,
+      "collect_seconds_median": 5.214152319000277,
+      "total_seconds_median": 406.13947024200024,
+      "total_seconds_min": 403.73475233499994,
+      "total_seconds_max": 408.1979496369968,
+      "saving_against_flat": 0.03483818806391992
+    }
+  ]
+}
