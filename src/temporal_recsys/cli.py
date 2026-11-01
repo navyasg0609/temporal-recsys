@@ -62,6 +62,13 @@ def build_parser() -> argparse.ArgumentParser:
     latency.add_argument("--output-dir", type=Path, required=True)
     latency.add_argument("--code-commit", required=True)
     latency.add_argument("--driver-memory", default="2g")
+
+    two_tower = commands.add_parser("two-tower", help="train the neural model on a registered plan")
+    two_tower.add_argument("--monthly-dir", type=Path, required=True)
+    two_tower.add_argument("--raw-dir", type=Path, required=True)
+    two_tower.add_argument("--plan", type=Path, required=True)
+    two_tower.add_argument("--output-dir", type=Path, required=True)
+    two_tower.add_argument("--code-commit", required=True)
     return parser
 
 
@@ -110,6 +117,24 @@ def run_training_latency_command(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_two_tower_command(args: argparse.Namespace) -> int:
+    # PyTorch is an optional extra, so only this command may require it.
+    from temporal_recsys.experiments.two_tower import load_plan as load_two_tower_plan
+    from temporal_recsys.experiments.two_tower import pick_device, run_two_tower
+
+    device = pick_device()
+    summary = run_two_tower(
+        args.monthly_dir,
+        args.raw_dir,
+        load_two_tower_plan(args.plan),
+        args.output_dir,
+        args.code_commit,
+        device,
+    )
+    print(json.dumps(summary, indent=2))
+    return 0
+
+
 def run_synthetic(args: argparse.Namespace) -> int:
     args.output_dir.mkdir(parents=True, exist_ok=True)
     data = generate_ratings(SyntheticConfig(seed=args.seed))
@@ -144,6 +169,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         "baseline": run_baseline_command,
         "spark-als": run_spark_als_command,
         "training-latency": run_training_latency_command,
+        "two-tower": run_two_tower_command,
     }
     return commands[args.command](args)
 
