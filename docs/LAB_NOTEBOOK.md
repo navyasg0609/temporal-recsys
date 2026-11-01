@@ -335,3 +335,31 @@ timed work, and they may not all have shared one session.
 
 **What it changes:** the largest window takes minutes, so the main experiment can run on Kaggle
 (decision 022).
+
+## 2026-11-01: Kaggle GPU and title file check
+
+**Expected:** a free GPU would run PyTorch, and the dataset would include film titles.
+
+**Ran:** `scripts/kaggle_gpu_check.py` on a Kaggle GPU notebook at commit `0219cdf`.
+
+| Item | Result |
+|---|---|
+| Python | 3.13.15 |
+| PyTorch | 2.11.0+cu128 |
+| GPU | 2 Tesla T4, 14.6 GB each |
+| CPU count | 4 |
+| Memory | 31.3 GB |
+| Free disk | 19.5 GB |
+| 4,096 by 4,096 matrix product | 0.190 s |
+| Title lines matched | 17,770 of 17,770 |
+| Titles containing a comma | 336 |
+| Missing years | 7 |
+| Year range | 1896 to 2005 |
+
+**What happened:** both expectations held. The notebook has the same CPU count and memory as the
+CPU notebooks used for ALS. One matrix product is a working check, not a benchmark.
+
+**Not measured:** Kaggle's weekly GPU allowance.
+
+**What it changes:** the model uses one T4, titles and release years are available, and PyTorch
+stays an optional extra so that Kaggle keeps its own GPU build.

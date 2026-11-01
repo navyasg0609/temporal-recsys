@@ -15,11 +15,16 @@ dependencies = [
     "scipy>=1.14",
 ]
 
+[project.optional-dependencies]
+# Optional so that installing this package on Kaggle keeps Kaggle's own GPU build.
+neural = ["torch==2.11.0"]
+
 [project.scripts]
 trs = "temporal_recsys.cli:main"
 
 [dependency-groups]
 dev = [
+    "temporal-recsys[neural]",
     "hypothesis>=6",
     "mypy>=1.10",
     "pre-commit>=3.7",
@@ -27,6 +32,15 @@ dev = [
     "ruff>=0.5",
     "types-pyyaml>=6.0.12.20261030",
 ]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+temporal-recsys = { workspace = true }
+torch = { index = "pytorch-cpu" }
 
 [build-system]
 requires = ["hatchling"]
