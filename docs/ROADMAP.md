@@ -1,6 +1,6 @@
 # Roadmap
 
-**Status:** Phases 0, 1 and 2 complete. Phase 3 is next.
+**Status:** Phases 0, 1, 2 and 3 complete. Phase 3b is next.
 
 Update this file when a phase finishes. A phase is done only when its exit
 criteria have been demonstrated with real output.
@@ -44,10 +44,11 @@ planted drift in synthetic data.
 ## Phase 3: Spark ALS (1 week)
 
 - Implement Spark ALS behind the same evaluation interface.
-- Tune on the sample, tracking runs in MLflow.
+- Tune on the July cutoff (decision 021). MLflow was dropped (decision 020).
 - Time one full-data run, then decide the compute platform and the run budget for
-  Phase 4 (see `docs/PROJECT_OVERVIEW.md`).
-- Record Kaggle's real session limit from that run.
+  Phase 4 (decision 022).
+- Measure whole-job training time on each storage layout (decision 024).
+- Kaggle's session limit was not reached, so it stays unmeasured.
 
 **Exit:** Spark ALS beats the popularity baseline on the temporal split, or the
 reason it does not is understood and documented.

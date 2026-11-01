@@ -1,0 +1,61 @@
+id: training-latency
+version: 1
+registered_on: "2026-10-31"
+supersedes: null
+change_reason: null
+
+question: >-
+  How much of a whole Spark ALS training job does month partitioning save against flat
+  Parquet, for the same rows and the same model?
+prediction: >-
+  The saving is below 10% on the 12-month window, because the pilot spent 18.2 of about
+  371 seconds reading. It is larger on the 3-month window, where the read is a bigger share
+  of a shorter job, but stays well below 35%.
+
+data:
+  dataset: Netflix Prize, 100,480,507 ratings
+  source_revision: flat and monthly data from trs ingest, checked against known totals
+  partition_scheme: flat Parquet against one folder per rating month
+
+design:
+  baseline: flat Parquet
+  treatments:
+    - monthly partitions
+  cutoff: "2005-10-01"
+  window_months: [3, 12]
+  layouts: [flat, monthly]
+  test_months: 1
+  repetitions: 3
+  warmup_passes: 1
+  order_seed: 2026
+  n_films: 17770
+  fixed_parameters:
+    rank: 20
+    iterations: 10
+    regularization: 0.05
+    confidence: 10.0
+    seed: 1
+
+measurement:
+  primary_metric: median whole-job seconds, and the saving against flat
+  secondary_metrics:
+    - read seconds
+    - fit seconds
+    - collect seconds
+    - rows read
+  what_is_timed: reading and caching, fitting, and copying factors. Scoring is not timed.
+  hardware: Kaggle CPU notebook, 4 cores, 31.3 GB memory, Spark in local mode
+  repetitions: 3
+
+analysis:
+  uncertainty_method: Median and range across the three measured passes.
+  exclusions: The warm-up pass is excluded, because it fills the file cache.
+  what_would_change_the_conclusion: >-
+    If the ranges of the two layouts overlap on a window, report no clear saving on that
+    window. If the layouts read different rows, the run is invalid.
+  known_limitations: >-
+    Settings are fixed from the pilot, not tuned, because the time of a fit does not depend
+    much on them. The file cache is warm, so a cold disk could favor partitions more. Spark
+    in local mode is not distributed. Runs in other sessions must not share this machine.
+    This compares layouts for one window. It does not measure the time saved by training on
+    a shorter window, which is a separate question for the main experiment.

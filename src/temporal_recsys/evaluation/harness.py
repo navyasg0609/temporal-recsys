@@ -12,12 +12,14 @@ from temporal_recsys.data.arrays import RatingArrays
 from temporal_recsys.evaluation.metrics import ndcg_at_k, recall_at_k
 
 
-class Recommender(Protocol):
-    def fit(self, train: RatingArrays, n_films: int) -> None: ...
-
+class Scorer(Protocol):
     def score_users(self, user_ids: NDArray[np.int32]) -> NDArray[np.float64]:
         """Return one row per user and one column per film, indexed by film ID minus 1."""
         ...
+
+
+class Recommender(Scorer, Protocol):
+    def fit(self, train: RatingArrays, n_films: int) -> None: ...
 
 
 class UserGroup(Enum):
@@ -52,7 +54,7 @@ def has_eligible_users(
 
 
 def evaluate(
-    model: Recommender,
+    model: Scorer,
     train: RatingArrays,
     test: RatingArrays,
     n_films: int,

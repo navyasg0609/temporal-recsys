@@ -6,6 +6,7 @@ import pytest
 from temporal_recsys.data.arrays import RatingArrays, from_ratings
 from temporal_recsys.data.parser import Rating
 from temporal_recsys.models.als import AlsConfig, AlsModel, AlsVariant
+from temporal_recsys.models.factors import FactorModel
 from temporal_recsys.models.popularity import PopularityModel
 
 DAY = date(2005, 1, 1)
@@ -85,3 +86,22 @@ def test_als_gives_unknown_users_zero_scores() -> None:
     scores = model.score_users(np.array([999], dtype=np.int32))
 
     assert np.all(scores == 0)
+
+
+def test_als_requires_fit() -> None:
+    model = AlsModel(AlsConfig(variant=AlsVariant.RATING))
+
+    with pytest.raises(RuntimeError, match="fit"):
+        model.score_users(np.array([1], dtype=np.int32))
+
+
+def test_factor_model_multiplies_user_and_film_factors() -> None:
+    model = FactorModel(
+        user_ids=np.array([3, 8], dtype=np.int32),
+        user_factors=np.array([[1.0, 0.0], [2.0, 3.0]]),
+        film_factors=np.array([[1.0, 1.0], [0.0, 2.0], [4.0, 0.0]]),
+    )
+
+    scores = model.score_users(np.array([8, 3, 99], dtype=np.int32))
+
+    assert scores.tolist() == [[5.0, 6.0, 8.0], [1.0, 0.0, 4.0], [0.0, 0.0, 0.0]]

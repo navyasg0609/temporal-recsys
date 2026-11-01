@@ -13,6 +13,7 @@ from numpy.typing import NDArray
 from scipy.sparse import csr_matrix
 
 from temporal_recsys.data.arrays import RatingArrays
+from temporal_recsys.models.factors import FactorModel
 
 
 class AlsVariant(Enum):
@@ -36,37 +37,31 @@ class AlsConfig:
 class AlsModel:
     def __init__(self, config: AlsConfig) -> None:
         self.config = config
-        self._user_ids: NDArray[np.int32] = np.empty(0, dtype=np.int32)
-        self._user_factors: NDArray[np.float64] = np.empty((0, config.rank))
-        self._film_factors: NDArray[np.float64] = np.empty((0, config.rank))
+        self._factors: FactorModel | None = None
 
     def fit(self, train: RatingArrays, n_films: int) -> None:
         config = self.config
-        self._user_ids = np.unique(train.user_ids)
-        rows = np.searchsorted(self._user_ids, train.user_ids)
+        user_ids = np.unique(train.user_ids)
+        rows = np.searchsorted(user_ids, train.user_ids)
         by_user = csr_matrix(
             (self._targets(train), (rows, train.film_ids - 1)),
-            shape=(len(self._user_ids), n_films),
+            shape=(len(user_ids), n_films),
         )
         by_film = by_user.T.tocsr()
 
         rng = np.random.default_rng(config.seed)
         film_factors = rng.normal(scale=0.1, size=(n_films, config.rank))
-        user_factors = np.zeros((len(self._user_ids), config.rank))
+        user_factors = np.zeros((len(user_ids), config.rank))
         for _ in range(config.iterations):
             user_factors = self._solve_rows(by_user, film_factors)
             film_factors = self._solve_rows(by_film, user_factors)
-        self._user_factors = user_factors
-        self._film_factors = film_factors
+        self._factors = FactorModel(user_ids, user_factors, film_factors)
 
     def score_users(self, user_ids: NDArray[np.int32]) -> NDArray[np.float64]:
         """Score every film. Users absent from training score zero for all films."""
-        rows = np.searchsorted(self._user_ids, user_ids)
-        rows = np.minimum(rows, len(self._user_ids) - 1)
-        is_known = self._user_ids[rows] == user_ids
-        factors = self._user_factors[rows] * is_known[:, None]
-        scores: NDArray[np.float64] = factors @ self._film_factors.T
-        return scores
+        if self._factors is None:
+            raise RuntimeError("Call fit before scoring")
+        return self._factors.score_users(user_ids)
 
     def _targets(self, train: RatingArrays) -> NDArray[np.float64]:
         if self.config.variant is AlsVariant.PREFERENCE:

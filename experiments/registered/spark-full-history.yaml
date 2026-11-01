@@ -1,0 +1,62 @@
+id: spark-full-history
+version: 1
+registered_on: "2026-10-31"
+supersedes: null
+change_reason: null
+
+question: >-
+  How long does one Spark ALS fit take on all ratings before the last test cutoff, so the
+  main experiment's largest window can be budgeted?
+prediction: >-
+  The fit takes about twice the pilot's 347 seconds, because this window holds about twice
+  the rows, and the job finishes inside one Kaggle session.
+
+data:
+  dataset: Netflix Prize, 100,480,507 ratings
+  source_revision: monthly data from trs ingest, checked against known totals
+  partition_scheme: one folder per rating month
+
+design:
+  baseline: none, because this is a timing check and compares no models
+  treatments:
+    - Spark preference ALS
+  window_months: 71
+  tuning_cutoff: "2005-10-01"
+  test_cutoffs: []
+  test_months: 1
+  seeds: [1]
+  n_films: 17770
+  fixed_parameters:
+    rank: 20
+    iterations: 10
+  grid:
+    regularization: [0.05]
+    confidence: [10.0]
+
+measurement:
+  primary_metric: read, fit and collect seconds
+  secondary_metrics:
+    - training rows
+    - NDCG@10, as a check that the model learned something
+  relevance: a test rating of 4 or 5 stars
+  k: 10
+  relevant_stars: 4
+  max_users: 50000
+  evaluation_seed: 2026
+  what_is_timed: reading, fitting and copying factors, each separately
+  hardware: Kaggle CPU notebook, 4 cores, 31.3 GB memory, Spark in local mode
+  repetitions: 1
+
+analysis:
+  uncertainty_method: None. One run gives a rough size for planning, not a benchmark.
+  exclusions: >-
+    The stage label reads tune because the runner has one grid stage, but nothing is chosen
+    from this run. Its score is not reported as a history comparison, which belongs to the
+    main experiment and its own registered plan.
+  what_would_change_the_conclusion: >-
+    If the job does not finish, the main experiment drops or shortens its largest window, and
+    that change is registered first.
+  known_limitations: >-
+    One run, on one machine. The window starts at the first rating, in November 1999. Spark
+    in local mode is not distributed. How long the session survived gives only a lower bound
+    on Kaggle's limit.

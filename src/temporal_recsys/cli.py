@@ -14,6 +14,10 @@ from temporal_recsys.data.spark import create_spark_session
 from temporal_recsys.data.synthetic import SyntheticConfig, generate_ratings, write_raw_file
 from temporal_recsys.experiments.baseline import load_plan as load_baseline_plan
 from temporal_recsys.experiments.baseline import run_baseline
+from temporal_recsys.experiments.spark_als import load_plan as load_spark_als_plan
+from temporal_recsys.experiments.spark_als import run_spark_als
+from temporal_recsys.experiments.training_latency import load_plan as load_latency_plan
+from temporal_recsys.experiments.training_latency import run_training_latency
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -44,6 +48,20 @@ def build_parser() -> argparse.ArgumentParser:
     baseline.add_argument("--plan", type=Path, required=True)
     baseline.add_argument("--output-dir", type=Path, required=True)
     baseline.add_argument("--code-commit", required=True)
+
+    spark_als = commands.add_parser("spark-als", help="train Spark ALS on a registered plan")
+    spark_als.add_argument("--data-dir", type=Path, required=True)
+    spark_als.add_argument("--plan", type=Path, required=True)
+    spark_als.add_argument("--output-dir", type=Path, required=True)
+    spark_als.add_argument("--code-commit", required=True)
+    spark_als.add_argument("--driver-memory", default="2g")
+
+    latency = commands.add_parser("training-latency", help="time training on each storage layout")
+    latency.add_argument("--data-dir", type=Path, required=True)
+    latency.add_argument("--plan", type=Path, required=True)
+    latency.add_argument("--output-dir", type=Path, required=True)
+    latency.add_argument("--code-commit", required=True)
+    latency.add_argument("--driver-memory", default="2g")
     return parser
 
 
@@ -65,6 +83,30 @@ def run_benchmark_command(args: argparse.Namespace) -> int:
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2), encoding="utf-8")
     print(json.dumps({key: result[key] for key in ("windows", "summary")}, indent=2))
+    return 0
+
+
+def run_spark_als_command(args: argparse.Namespace) -> int:
+    spark = create_spark_session("spark-als", driver_memory=args.driver_memory)
+    try:
+        summary = run_spark_als(
+            spark, args.data_dir, load_spark_als_plan(args.plan), args.output_dir, args.code_commit
+        )
+    finally:
+        spark.stop()
+    print(json.dumps(summary, indent=2))
+    return 0
+
+
+def run_training_latency_command(args: argparse.Namespace) -> int:
+    spark = create_spark_session("training-latency", driver_memory=args.driver_memory)
+    try:
+        summary = run_training_latency(
+            spark, args.data_dir, load_latency_plan(args.plan), args.output_dir, args.code_commit
+        )
+    finally:
+        spark.stop()
+    print(json.dumps(summary, indent=2))
     return 0
 
 
@@ -100,6 +142,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         "ingest": run_ingest,
         "benchmark": run_benchmark_command,
         "baseline": run_baseline_command,
+        "spark-als": run_spark_als_command,
+        "training-latency": run_training_latency_command,
     }
     return commands[args.command](args)
 

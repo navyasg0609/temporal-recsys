@@ -126,8 +126,8 @@ known answer in the synthetic data.
 
 ### Phase 3: Train the Spark model (1 week)
 
-We build ALS in Spark, tune its settings on a small sample, and time one run on the
-full data. That timing tells us how many runs we can afford, and it informs the
+We build ALS in Spark, tune its settings on the same month as the NumPy model, and time
+one run on almost all the data. That timing tells us how many runs we can afford, and it informs the
 compute choice described below.
 
 **Finished when:** the model beats the popularity method, or we understand why not.
@@ -183,8 +183,8 @@ instructions from scratch.
 
 ## Where the heavy computing will run
 
-This is **still undecided**. The project aims to stay free, but we are keeping the
-options open.
+ALS training stays on free Kaggle notebooks (decision 022). The rest is **still undecided**.
+The project aims to stay free, and we are keeping the other options open.
 
 Daily development happens on a laptop using small samples. The options below are for
 the large jobs in Phases 3, 3b, 4, 5 and 7. Their limits and terms change often, so check

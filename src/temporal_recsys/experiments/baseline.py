@@ -29,9 +29,9 @@ from temporal_recsys.evaluation.harness import (
 )
 from temporal_recsys.evaluation.split import (
     TemporalSplit,
-    add_months,
     split_at_random,
     split_by_time,
+    window_before,
 )
 from temporal_recsys.models.als import AlsConfig, AlsModel, AlsVariant
 from temporal_recsys.models.popularity import PopularityModel
@@ -66,11 +66,7 @@ class BaselinePlan:
             raise ValueError("The leakage cutoff must be one of the test cutoffs")
 
     def split_at(self, cutoff: date) -> TemporalSplit:
-        return TemporalSplit(
-            add_months(cutoff, -self.window_months),
-            cutoff,
-            add_months(cutoff, self.test_months),
-        )
+        return window_before(cutoff, self.window_months, self.test_months)
 
 
 def load_plan(path: Path) -> BaselinePlan:
@@ -117,7 +113,7 @@ def run_baseline(
 ) -> dict[str, Any]:
     output_dir.mkdir(parents=True, exist_ok=True)
     arms_path = output_dir / ARMS_FILE
-    finished = _load_finished(arms_path)
+    finished = load_finished(arms_path)
     ratings = _load_all_ratings(monthly_dir, plan)
 
     def run_arm(
@@ -136,7 +132,7 @@ def run_baseline(
         model.fit(train, plan.n_films)
         fit_seconds = time.perf_counter() - start
         result = evaluate(model, train, test, plan.n_films, plan.evaluation, group)
-        record = _record(arm_id, stage, model_name, result, fit_seconds, train, test, group)
+        record = make_record(arm_id, stage, model_name, result, fit_seconds, train, test, group)
         with arms_path.open("a", encoding="utf-8") as arms_file:
             arms_file.write(json.dumps(record) + "\n")
         finished[arm_id] = record
@@ -230,7 +226,7 @@ def _load_all_ratings(monthly_dir: Path, plan: BaselinePlan) -> RatingArrays:
     return load_ratings(monthly_dir, first_day, end_day)
 
 
-def _load_finished(path: Path) -> dict[str, dict[str, Any]]:
+def load_finished(path: Path) -> dict[str, dict[str, Any]]:
     if not path.exists():
         return {}
     with path.open(encoding="utf-8") as lines:
@@ -238,7 +234,7 @@ def _load_finished(path: Path) -> dict[str, dict[str, Any]]:
     return {record["arm"]: record for record in records}
 
 
-def _record(
+def make_record(
     arm_id: str,
     stage: str,
     model_name: str,
