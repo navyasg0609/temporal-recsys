@@ -1,0 +1,61 @@
+id: two-tower-pilot
+version: 1
+registered_on: "2026-11-01"
+supersedes: null
+change_reason: null
+
+question: >-
+  How long does one two-tower arm take on the 12-month tuning window on a Kaggle GPU, so that
+  the later plan can be sized to fit the GPU allowance?
+prediction: >-
+  The arm finishes within one hour, and its NDCG@10 on the tuning cutoff is well above zero.
+  No prediction is made about how it compares with ALS, because this arm is not tuned.
+
+data:
+  dataset: Netflix Prize, 100,480,507 ratings, with film titles and release years
+  source_revision: monthly data from trs ingest, checked against known totals
+  partition_scheme: one folder per rating month
+
+design:
+  baseline: none, because this is a timing check and compares no models
+  treatments:
+    - two-tower model with title and year features
+  window_months: 12
+  tuning_cutoff: "2005-07-01"
+  test_cutoffs: []
+  test_months: 1
+  seeds: [1]
+  n_films: 17770
+  compare_id_only: false
+  fixed_parameters:
+    dimensions: 64
+    max_history: 50
+    batch_size: 4096
+  grid:
+    epochs: [3]
+    learning_rate: [0.001]
+    temperature: [0.05]
+
+measurement:
+  primary_metric: training seconds, and seconds for each epoch
+  secondary_metrics:
+    - NDCG@10 on the tuning cutoff, as a check that the model learned something
+  relevance: a test rating of 4 or 5 stars
+  k: 10
+  relevant_stars: 4
+  max_users: 50000
+  evaluation_seed: 2026
+  what_is_timed: training epochs, which include building each batch on the CPU
+  hardware: Kaggle GPU notebook, one Tesla T4, 4 cores, 31.3 GB memory
+  repetitions: 1
+
+analysis:
+  uncertainty_method: None. One run gives a rough size for planning, not a benchmark.
+  exclusions: >-
+    The test cutoffs are not touched. This score must not be used to choose settings for the
+    later plan, except as one arm of the tuning grid if that grid is run in full.
+  what_would_change_the_conclusion: >-
+    If NDCG@10 is near zero, the model is investigated before any further run.
+  known_limitations: >-
+    One run, on one GPU, with settings that are reasonable defaults and are not tuned. GPU
+    seconds cannot be compared directly with the CPU seconds of ALS.
