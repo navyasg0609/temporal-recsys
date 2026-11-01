@@ -1,3 +1,4 @@
+from dataclasses import replace
 from datetime import date
 from pathlib import Path
 
@@ -12,6 +13,7 @@ from temporal_recsys.experiments.two_tower import (
     TwoTowerPlan,
     load_plan,
     run_two_tower,
+    tuning_grid,
 )
 
 N_FILMS = 60
@@ -72,3 +74,24 @@ def test_pilot_plan_loads() -> None:
     assert plan.window_months == 12
     assert plan.test_cutoffs == ()
     assert plan.compare_id_only is False
+    assert plan.recent_popularity_months is None
+
+
+def test_main_plans_load() -> None:
+    main = load_plan(Path("experiments/registered/two-tower.yaml"))
+    full = load_plan(Path("experiments/registered/two-tower-full-history.yaml"))
+
+    assert main.recent_popularity_months == 1
+    assert len(tuning_grid(main)) == 3
+    assert full.split_at(full.tuning_cutoff).train_start == date(1999, 11, 1)
+
+
+def test_recent_popularity_is_scored_on_every_cutoff(
+    data_dirs: tuple[Path, Path], tmp_path: Path
+) -> None:
+    plan = replace(PLAN, compare_id_only=False, recent_popularity_months=1)
+
+    summary = run_two_tower(*data_dirs, plan, tmp_path, code_commit="abc", device="cpu")
+
+    arms = {row["model"]: row["arms"] for row in summary["results"]}
+    assert arms == {"popularity-recent": 1, "two-tower": 2}
