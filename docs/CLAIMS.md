@@ -50,3 +50,20 @@ number is not in this table, it is not published.
 | 1-month popularity NDCG@10 over Spark ALS | 1.64 times, no overlap | Kaggle GPU notebook, one Tesla T4, 4 cores, 31.3 GB, ALS on a CPU notebook of the same size | two-tower, spark-als | `trs two-tower` | `4c5a1ec` |
 | Mean training time, two-tower model, 12-month window | 424.2 s | Kaggle GPU notebook, one Tesla T4, 4 cores, 31.3 GB | two-tower | `trs two-tower` | `4c5a1ec` |
 | Training time, one two-tower run on 89,313,064 ratings | 783.7 s | Kaggle GPU notebook, one Tesla T4, 4 cores, 31.3 GB | two-tower-full-history | `trs two-tower` | `4c5a1ec` |
+| NDCG@10, Recall@10, rows and training seconds for every model and window | `experiments/results/history-*/summary.json`, tables in LAB_NOTEBOOK 2026-11-02 | Popularity and Spark ALS: Kaggle CPU notebook, 4 cores, 31.3 GB, Spark local mode. Two-tower: Kaggle GPU notebook, one Tesla T4, 4 cores, 31.3 GB | history-windows | `trs history` | `2fe0302` |
+| History needed, popularity | 1 month | Kaggle CPU notebook, 4 cores, 31.3 GB | history-windows | `trs history --model popularity` | `2fe0302` |
+| History needed, Spark ALS | 1 month | Kaggle CPU notebook, 4 cores, 31.3 GB, Spark local mode | history-windows | `trs history --model spark-als` | `2fe0302` |
+| History needed, two-tower model | 6 months | Kaggle GPU notebook, one Tesla T4, 4 cores, 31.3 GB | history-windows | `trs history --model two-tower` | `2fe0302` |
+| NDCG@10, popularity, 1-month window | 0.0837 (0.0697 to 0.1096) | Kaggle CPU notebook, 4 cores, 31.3 GB | history-windows | `trs history --model popularity` | `2fe0302` |
+| NDCG@10, Spark ALS, 1-month window | 0.0793 (0.0690 to 0.0918) | Kaggle CPU notebook, 4 cores, 31.3 GB, Spark local mode | history-windows | `trs history --model spark-als` | `2fe0302` |
+| NDCG@10, Spark ALS, all history | 0.0471 (0.0462 to 0.0488) | Kaggle CPU notebook, 4 cores, 31.3 GB, Spark local mode | history-windows | `trs history --model spark-als` | `2fe0302` |
+| NDCG@10, two-tower model, 6-month window | 0.1007 (0.0906 to 0.1120) | Kaggle GPU notebook, one Tesla T4, 4 cores, 31.3 GB | history-windows | `trs history --model two-tower` | `2fe0302` |
+| NDCG@10, two-tower model, 12-month window | 0.1028 (0.0918 to 0.1149) | Kaggle GPU notebook, one Tesla T4, 4 cores, 31.3 GB | history-windows | `trs history --model two-tower` | `2fe0302` |
+| Spark ALS NDCG@10, 1 month over all history | 1.68 times | Kaggle CPU notebook, 4 cores, 31.3 GB, Spark local mode | history-windows | `trs history --model spark-als` | `2fe0302` |
+| Spark ALS training time, all history over 1 month | 8.68 times (613.7 s against 70.7 s) | Kaggle CPU notebook, 4 cores, 31.3 GB, Spark local mode | history-windows | `trs history --model spark-als` | `2fe0302` |
+| Two-tower NDCG@10, 6 months as a share of 12 months | 98.0% | Kaggle GPU notebook, one Tesla T4, 4 cores, 31.3 GB | history-windows | `trs history --model two-tower` | `2fe0302` |
+| Two-tower training time, 12 months over 6 months | 1.83 times (424.4 s against 231.6 s) | Kaggle GPU notebook, one Tesla T4, 4 cores, 31.3 GB | history-windows | `trs history --model two-tower` | `2fe0302` |
+| Two-tower against Spark ALS and popularity, same window | Higher at every window and test month (paired rule) | Two-tower on a Kaggle GPU notebook, the others on a CPU notebook of the same size | history-windows | `trs history` | `2fe0302` |
+| Smallest two-tower margin, over popularity, 1 month, August 2005 | 0.0038 | Two-tower on a Kaggle GPU notebook, popularity on a CPU notebook of the same size | history-windows | `trs history` | `2fe0302` |
+| Spark ALS against popularity, 1-month window | No clear difference: popularity higher in August, ALS higher in October | Kaggle CPU notebook, 4 cores, 31.3 GB, Spark local mode | history-windows | `trs history` | `2fe0302` |
+| Spark ALS against popularity, 3 months and longer | Higher at every window and test month (paired rule) | Kaggle CPU notebook, 4 cores, 31.3 GB, Spark local mode | history-windows | `trs history` | `2fe0302` |

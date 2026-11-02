@@ -171,3 +171,21 @@ are reported with the hardware named, and no model is called faster than one on 
 Popularity over the last month beat both tuned 12-month ALS models, so 12-month popularity alone is
 too weak a baseline. This extends decision 023. Every later comparison includes recent popularity,
 which takes under a second to fit.
+
+## 030: Score every window on the same users and the same seen films
+
+At each test month, every window is scored on the users who rated anything before the cutoff, and
+each user's earlier films are removed from their list however short the window. Otherwise a short
+window would face fewer, easier users and could recommend films a user already rated, and scores
+across windows would not be comparable.
+
+## 031: Give users missing from a window that window's popular films
+
+A short window leaves out users who rated nothing in it. They get the window's most popular films,
+as a real service would give them, instead of a zero score. This keeps a short window from losing
+points only because of who was left out. The serving plan in Phase 6 uses the same fallback.
+
+## 032: Cut the user and film breakdown and the second dataset from Phase 4
+
+The main result is clear without them, and the roadmap's cut order lists both before the core
+phases. They stay possible future work and are named as limits in the results.

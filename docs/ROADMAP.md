@@ -1,6 +1,6 @@
 # Roadmap
 
-**Status:** Phases 0, 1, 2, 3 and 3b complete. Phase 4 is next.
+**Status:** Phases 0, 1, 2, 3, 3b and 4 complete. Phase 5 is next.
 
 Update this file when a phase finishes. A phase is done only when its exit
 criteria have been demonstrated with real output.
@@ -74,8 +74,10 @@ and one full-data run is timed.
 - Compare how much history each model needs. Compare compute cost only with the
   hardware named, because the models may run on different machines.
 - Control for the growth in rating volume over time by also reporting rows read.
-- Break results down by user tenure and item popularity.
-- Stretch: repeat on a second dated dataset to test whether the finding generalizes.
+- The breakdown by user tenure and item popularity, and the second dataset, were cut
+  (decision 032).
+- Result: popularity and Spark ALS need 1 month, the two-tower model needs 6, and no model
+  gains beyond 12 months (`docs/LAB_NOTEBOOK.md`, 2026-11-02).
 
 **Exit:** headline chart of quality against compute cost with uncertainty, and
 every number recorded in `docs/CLAIMS.md`.

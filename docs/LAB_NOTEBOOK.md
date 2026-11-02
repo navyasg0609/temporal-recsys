@@ -489,3 +489,83 @@ times the rows. NDCG@10 was 0.1030 with untuned settings. This is a timing check
 compare history lengths.
 
 **Not measured:** Kaggle's weekly GPU allowance and session limit. None of these runs reached them.
+
+## 2026-11-02: How much history each model needs
+
+**Expected:** see `experiments/registered/history-windows.yaml`. Popularity would do best on 1
+month and Spark ALS on 3 months or less. The two-tower model would need more history than ALS. No
+model would gain beyond 12 months, and the two-tower model would score highest at its best window.
+
+**Ran:** `trs history` at commit `2fe0302`, 90 arms: 6 windows × 3 test months, with 2 seeds for
+the trained models. Popularity and Spark ALS ran on a Kaggle CPU notebook (4 cores, 31.3 GB, Spark
+local mode), and the two-tower model on a Kaggle GPU notebook (one Tesla T4, same CPU and memory).
+The ALS session stopped after 35 arms because the notebook sat idle. Rerunning the cell kept those
+35 and trained only the last one, so the restart logic worked on a real run.
+
+**NDCG@10, mean and range across test months and seeds.** Rows are the mean training rows across
+the three test months:
+
+| Months | Rows | Popularity | Spark ALS | Two-tower |
+|---|---|---|---|---|
+| 1 | 5.0M | **0.0837** (0.0697 to 0.1096) | **0.0793** (0.0690 to 0.0918) | 0.0913 (0.0774 to 0.1145) |
+| 3 | 15.1M | 0.0609 (0.0488 to 0.0722) | 0.0736 (0.0685 to 0.0816) | 0.0968 (0.0861 to 0.1082) |
+| 6 | 28.2M | 0.0500 (0.0455 to 0.0537) | 0.0620 (0.0586 to 0.0672) | **0.1007** (0.0906 to 0.1120) |
+| 12 | 49.2M | 0.0334 (0.0326 to 0.0340) | 0.0527 (0.0508 to 0.0560) | 0.1028 (0.0918 to 0.1149) |
+| 24 | 71.8M | 0.0308 (0.0300 to 0.0320) | 0.0489 (0.0476 to 0.0505) | 0.1026 (0.0914 to 0.1136) |
+| all | 84.3M | 0.0305 (0.0292 to 0.0317) | 0.0471 (0.0462 to 0.0488) | 0.1010 (0.0902 to 0.1108) |
+
+Bold marks the history each model needs under the registered rule: the shortest window within 5%
+of the model's best window at every test month.
+
+**Training seconds, mean and range.** The hardware differs, so compare times only within a model:
+
+| Months | Spark ALS, CPU | Two-tower, GPU |
+|---|---|---|
+| 1 | 70.7 (64.8 to 85.5) | 29.7 (28.1 to 32.0) |
+| 3 | 144.8 (137.9 to 163.3) | 111.2 (107.4 to 113.9) |
+| 6 | 236.6 (225.1 to 242.5) | 231.6 (228.9 to 233.3) |
+| 12 | 383.0 (361.6 to 414.4) | 424.4 (406.7 to 440.0) |
+| 24 | 529.6 (496.9 to 561.4) | 632.5 (598.8 to 664.4) |
+| all | 613.7 (574.0 to 651.6) | 740.7 (698.3 to 781.8) |
+
+Figure: `report/figures/history_windows.png`, drawn by `report/figures/history_windows.py` from the
+committed result files.
+
+**Prediction check:** all five predictions held.
+
+- Popularity does best on 1 month: confirmed.
+- Spark ALS does best on 3 months or less: confirmed. 1 month is best, and every added window
+  scores lower at every test month.
+- The two-tower model needs more history than ALS: confirmed, 6 months against 1. One and 3
+  months fall below the 95% line in September.
+- No model gains beyond 12 months: confirmed. Popularity and ALS keep falling, and the two-tower
+  model is flat from 12 to 24 months and slightly lower on all history.
+- The two-tower model scores highest at its best window: confirmed by the paired rule. At every
+  window it is higher than ALS and popularity at every test month. Its smallest margin is 0.0038,
+  over popularity on 1 month in August, more than four times either arm's standard error of 0.0008.
+
+**Paired comparisons:** Spark ALS beats popularity at every window from 3 months up. At 1 month it
+does not: popularity is higher in August, ALS in October, and September is nearly a tie.
+
+**What happened:** more history made the two simple models worse. ALS on 1 month scored 1.68 times
+its all-history score, and all history took 8.68 times as long to train (613.7 against 70.7 seconds). The
+two-tower model works differently: it improved up to 6 months and then stayed flat. Its 6-month
+score is 98.0% of its 12-month score, and 12 months took 1.83 times as long to train.
+
+**Against earlier results:** Phase 3b found no clear difference between the two-tower model and
+1-month popularity, using the range rule. This plan's paired rule finds the two-tower model higher
+at every test month. Both statements hold under their own rules. The plan explains why the rule
+changed: the ranges mostly measure how hard each month is. Scores are slightly higher than in
+earlier plans (Spark ALS on 12 months: 0.0527 against 0.0491), because every window now removes
+all films rated before the cutoff and gives users missing from the window popular films
+(decisions 030 and 031).
+
+**Limits:** three test months, all in late 2005, and two seeds. Settings were tuned on 12 months,
+which may favor that window, and fixed epochs give short windows fewer training steps. The
+two-tower input stops at 50 films per user. The breakdown by user tenure and film popularity was
+not run (decision 032). Recency may partly reflect what the service promoted, which this data
+cannot separate.
+
+**What it changes:** the answer to the main question depends on the model. A recent window is
+enough, and better, for popularity and ALS. The two-tower model needs about 6 months, and history
+beyond 12 months buys nothing for any model while training time keeps growing with rows.
