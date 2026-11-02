@@ -335,3 +335,157 @@ timed work, and they may not all have shared one session.
 
 **What it changes:** the largest window takes minutes, so the main experiment can run on Kaggle
 (decision 022).
+
+## 2026-11-01: Kaggle GPU and title file check
+
+**Expected:** a free GPU would run PyTorch, and the dataset would include film titles.
+
+**Ran:** `scripts/kaggle_gpu_check.py` on a Kaggle GPU notebook at commit `0219cdf`.
+
+| Item | Result |
+|---|---|
+| Python | 3.13.15 |
+| PyTorch | 2.11.0+cu128 |
+| GPU | 2 Tesla T4, 14.6 GB each |
+| CPU count | 4 |
+| Memory | 31.3 GB |
+| Free disk | 19.5 GB |
+| 4,096 by 4,096 matrix product | 0.190 s |
+| Title lines matched | 17,770 of 17,770 |
+| Titles containing a comma | 336 |
+| Missing years | 7 |
+| Year range | 1896 to 2005 |
+
+**What happened:** both expectations held. The notebook has the same CPU count and memory as the
+CPU notebooks used for ALS. One matrix product is a working check, not a benchmark.
+
+**Not measured:** Kaggle's weekly GPU allowance.
+
+**What it changes:** the model uses one T4, titles and release years are available, and PyTorch
+stays an optional extra so that Kaggle keeps its own GPU build.
+
+## 2026-11-01: Two-tower pilot
+
+**Expected:** see `experiments/registered/two-tower-pilot.yaml`. The arm would finish within an
+hour and score well above zero.
+
+**Ran:** `trs two-tower` on a Kaggle GPU notebook (one Tesla T4, 4 cores, 31.3 GB) at commit
+`85444be`. One untuned arm on the 12-month tuning window, with 44,209,042 rows and 3 epochs.
+
+**What happened:** both expectations held. Training took 376.3 seconds. NDCG@10 was 0.1123 and
+Recall@10 was 0.1319, on the tuning cutoff.
+
+**Why this is not accepted yet:** the best ALS score on this cutoff was 0.0528. An untuned model
+at about twice that is more likely to reveal a flaw than a breakthrough, and the random split in
+the baseline table shows how easily this metric inflates. No full plan is registered until the
+gain is explained. `experiments/registered/two-tower-diagnostic.yaml` tests the explanations.
+
+## 2026-11-01: Why the two-tower pilot scored so high
+
+**Expected:** see `experiments/registered/two-tower-diagnostic.yaml`. Recency would explain most
+of the gain, with no drop from removing unseen films or title and year features.
+
+**Ran:** `trs two-tower-diagnostic` on a Kaggle GPU notebook (one Tesla T4, 4 cores, 31.3 GB) at
+commit `f323dfe`, on the July 2005 tuning cutoff only, with one seed. Every arm shares the same
+50,000 users and removes the same seen films. Training ended on 2005-06-30, and the test began on
+2005-07-01.
+
+| Arm | NDCG@10 | Standard error |
+|---|---|---|
+| Popularity, 12 months | 0.0337 | 0.0004 |
+| Preference ALS, 12 months | 0.0522 | 0.0005 |
+| Popularity, 3 months | 0.0711 | 0.0006 |
+| Preference ALS, 1 month | 0.0725 | 0.0006 |
+| Preference ALS, 3 months | 0.0769 | 0.0006 |
+| Popularity, 1 month | 0.0899 | 0.0007 |
+| Two-tower, IDs only | 0.1121 | 0.0008 |
+| Two-tower, all features | 0.1135 | 0.0008 |
+| Two-tower, films absent from training removed | 0.1136 | 0.0008 |
+
+**What happened:** the prediction held, and the gain is not a catalog leak. Removing the 637 films
+absent from training changed nothing, and those films hold only 0.03% of relevant test ratings.
+Title and year features added little, 0.1135 against 0.1121 on one seed.
+
+Most of the gap is recency. Popularity trained on the last month alone scored 2.66 times its
+12-month score. That is higher than preference ALS on any window tested here, and much simpler.
+The two-tower model still scored 1.26 times higher than 1-month popularity.
+
+**This corrects an earlier conclusion.** The baseline table compared models with 12-month
+popularity only. Preference ALS beat that baseline, but on this cutoff it loses clearly to a
+popularity count over the last month. Beating popularity was a weaker test than it looked, so later
+results also report recent popularity.
+
+**Also seen:** the same seed gave 0.1123 in the pilot and 0.1135 here, so GPU training is not
+exactly repeatable. NumPy ALS repeated its earlier score to every digit.
+
+**Hypothesis, not proven:** July's ratings concentrate on recent releases, which the service also
+promotes, so recency may partly reflect what people were shown.
+
+**Limits:** one seed on one cutoff. A short-window model gives zero scores to users with no
+ratings in that window, which lowers its score.
+
+**What it changes:** the two-tower plan adds 1-month popularity on the test cutoffs, and uses 3
+tuning settings to keep this version basic. The result also points to a strong answer to the main
+question, which Phase 4 must test properly.
+
+## 2026-11-02: Two-tower model on the temporal split
+
+**Expected:** see `experiments/registered/two-tower.yaml`. The model would beat Spark ALS and
+1-month popularity with no overlap in ranges, and 1-month popularity would beat 12-month ALS.
+
+**Ran:** `trs two-tower` on a Kaggle GPU notebook (one Tesla T4, 4 cores, 31.3 GB) at commit
+`4c5a1ec`. ALS results come from a CPU notebook of the same size, so times are not compared.
+
+**Chosen on the July tuning cutoff:** `temperature=0.1`, the top of the grid. It led
+`temperature=0.05` by 0.000005, far inside the 0.0008 standard error, so the choice is noise.
+
+**Temporal test, known users. Mean and range across cutoffs and seeds:**
+
+| Model | Arms | NDCG@10 | Recall@10 |
+|---|---|---|---|
+| Two-tower | 6 | 0.1023 (0.0909 to 0.1150) | 0.1197 (0.1082 to 0.1320) |
+| Popularity, last month | 3 | 0.0806 (0.0680 to 0.1052) | 0.0923 (0.0771 to 0.1148) |
+| Spark preference ALS | 6 | 0.0491 (0.0477 to 0.0520) | 0.0573 (0.0551 to 0.0608) |
+| NumPy preference ALS, version 2 | 6 | 0.0488 (0.0471 to 0.0517) | 0.0568 (0.0542 to 0.0602) |
+| Popularity, 12 months | 3 | 0.0306 (0.0292 to 0.0318) | 0.0350 (0.0335 to 0.0360) |
+
+**NDCG@10 by cutoff, with the two seeds shown for the two-tower model:**
+
+| Test month | Two-tower | Popularity, last month |
+|---|---|---|
+| August 2005 | 0.1150, 0.1129 | 0.1052 |
+| September 2005 | 0.0909, 0.0917 | 0.0680 |
+| October 2005 | 0.1020, 0.1012 | 0.0686 |
+
+**Prediction check:**
+
+- The two-tower model beats Spark ALS with no overlap: confirmed, by 2.08 times.
+- The two-tower model beats 1-month popularity with no overlap: **not confirmed**. The ranges
+  overlap, so the plan's rule says no clear difference. The model did score higher in every
+  month, but that was not the registered test. The overlap comes from months differing, and only
+  three months were tested.
+- 1-month popularity beats 12-month ALS: confirmed, by 1.64 times with no overlap.
+
+**What happened:** a popularity count over the last month scored 2.64 times higher than the same
+count over 12 months, and beat both tuned 12-month ALS models. The two-tower model beat ALS, which
+meets decision 010's requirement, but it is not clearly better than the simple recent baseline.
+
+**Limits:** three test months and two seeds. The grid was smaller than ALS's. The model's input
+stops at each user's latest 50 films, whatever the training window. Offline scores favor popular
+films, and what the service promoted may explain part of the recency effect, which was not tested.
+
+**What it changes:** the main experiment reports recent popularity next to every model
+(decision 029).
+
+## 2026-11-02: One two-tower run on all history
+
+**Expected:** see `experiments/registered/two-tower-full-history.yaml`. Training would take about
+twice the pilot's 376 seconds.
+
+**Ran:** `trs two-tower` on the same setup at commit `4c5a1ec`, on 89,313,064 ratings.
+
+**What happened:** the prediction held. Training took 783.7 seconds, 2.08 times the pilot, on 2.02
+times the rows. NDCG@10 was 0.1030 with untuned settings. This is a timing check and does not
+compare history lengths.
+
+**Not measured:** Kaggle's weekly GPU allowance and session limit. None of these runs reached them.

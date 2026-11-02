@@ -135,7 +135,7 @@ compute choice described below.
 ### Phase 3b: Train the neural model (1 week)
 
 We build the Two-Tower model in PyTorch and test it with exactly the same split and
-scoring as ALS. Spark prepares the training examples, and PyTorch does the training.
+scoring as ALS. NumPy prepares the training examples, and PyTorch does the training.
 The model reads recent ratings and film details rather than only ID numbers, because
 an ID-only version would be very close to ALS. We also confirm that a free GPU is
 available. A GPU is a chip that greatly speeds up neural network training.

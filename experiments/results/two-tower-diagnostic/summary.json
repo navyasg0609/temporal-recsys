@@ -1,0 +1,86 @@
+{
+  "plan": "two-tower-diagnostic",
+  "code_commit": "f323dfe39aac2180f512cf426b0a50d35001e2b8",
+  "machine": {
+    "device": "cuda:0",
+    "torch": "2.11.0+cu128"
+  },
+  "latest_training_day": "2005-06-30",
+  "first_test_day": "2005-07-01",
+  "films_absent_from_training": 637,
+  "share_of_relevant_ratings_on_unseen_films": 0.0003472656865159964,
+  "arms": [
+    {
+      "arm": "popularity/months=12",
+      "ndcg": 0.03371881990934558,
+      "ndcg_stderr": 0.00043086300005722844,
+      "recall": 0.03726475396825397,
+      "recall_stderr": 0.0005048491933987562,
+      "users_evaluated": 50000
+    },
+    {
+      "arm": "als/months=12",
+      "ndcg": 0.05224375543191112,
+      "ndcg_stderr": 0.0005395221933609482,
+      "recall": 0.060047301587301594,
+      "recall_stderr": 0.0006484270273556288,
+      "users_evaluated": 50000
+    },
+    {
+      "arm": "popularity/months=1",
+      "ndcg": 0.08985844220259151,
+      "ndcg_stderr": 0.0007091138973805946,
+      "recall": 0.10518864285714286,
+      "recall_stderr": 0.0009061053172866693,
+      "users_evaluated": 50000
+    },
+    {
+      "arm": "als/months=1",
+      "ndcg": 0.0725183044311229,
+      "ndcg_stderr": 0.0006412327395191998,
+      "recall": 0.08834326984126985,
+      "recall_stderr": 0.0008323671240371659,
+      "users_evaluated": 50000
+    },
+    {
+      "arm": "popularity/months=3",
+      "ndcg": 0.07108711399536115,
+      "ndcg_stderr": 0.0005988897538364828,
+      "recall": 0.0977302142857143,
+      "recall_stderr": 0.0008946693324639999,
+      "users_evaluated": 50000
+    },
+    {
+      "arm": "als/months=3",
+      "ndcg": 0.07685033993712592,
+      "ndcg_stderr": 0.0006468973668368941,
+      "recall": 0.09256634920634921,
+      "recall_stderr": 0.0008320742103825502,
+      "users_evaluated": 50000
+    },
+    {
+      "arm": "two-tower/full",
+      "ndcg": 0.11348100734071842,
+      "ndcg_stderr": 0.0007949998524317383,
+      "recall": 0.13385228571428573,
+      "recall_stderr": 0.0009929288657944551,
+      "users_evaluated": 50000
+    },
+    {
+      "arm": "two-tower/unseen-films-removed",
+      "ndcg": 0.11362048210281106,
+      "ndcg_stderr": 0.0007955056634674352,
+      "recall": 0.13396603174603172,
+      "recall_stderr": 0.0009932301989650498,
+      "users_evaluated": 50000
+    },
+    {
+      "arm": "two-tower/id-only",
+      "ndcg": 0.1120644551528538,
+      "ndcg_stderr": 0.0007887714997626331,
+      "recall": 0.13191045238095236,
+      "recall_stderr": 0.0009847066156416073,
+      "users_evaluated": 50000
+    }
+  ]
+}

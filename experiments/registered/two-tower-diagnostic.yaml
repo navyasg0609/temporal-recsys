@@ -1,0 +1,80 @@
+id: two-tower-diagnostic
+version: 1
+registered_on: "2026-11-01"
+supersedes: null
+change_reason: null
+
+question: >-
+  Why did the untuned two-tower pilot score NDCG@10 0.1123 on the tuning cutoff, about twice
+  ALS's best of 0.0528 there? Is the gain real, and which explanation accounts for it?
+prediction: >-
+  Most of the gain is real and comes from recency. Popularity and ALS trained on only the
+  latest months score clearly higher than on 12 months. The two-tower score barely changes
+  when films absent from training are removed, and stays well above ALS without title and
+  year features. If removing those films or features causes a large drop, the gain is at
+  least partly leakage from the catalog, and the design must change.
+
+data:
+  dataset: Netflix Prize, 100,480,507 ratings, with film titles and release years
+  source_revision: monthly data from trs ingest, checked against known totals
+  partition_scheme: one folder per rating month
+
+design:
+  baseline: popularity and preference ALS on the same 12-month window
+  treatments:
+    - popularity and preference ALS trained only on the last 1 or 3 months
+    - two-tower model with all features
+    - the same two-tower model with films absent from training scoring zero
+    - two-tower model with film IDs only
+  cutoff: "2005-07-01"
+  window_months: 12
+  test_months: 1
+  n_films: 17770
+  recent_months: [1, 3]
+  als:
+    rank: 20
+    regularization: 10.0
+    confidence: 3.0
+    iterations: 10
+    seed: 1
+  two_tower:
+    dimensions: 64
+    max_history: 50
+    batch_size: 4096
+    epochs: 3
+    learning_rate: 0.001
+    temperature: 0.05
+    use_content: true
+    seed: 1
+
+measurement:
+  primary_metric: NDCG@10 against the full catalog, excluding films seen in the 12-month window
+  secondary_metrics:
+    - Recall@10
+    - films absent from training
+    - share of relevant test ratings on films absent from training
+    - latest training day and first test day
+  relevance: a test rating of 4 or 5 stars
+  k: 10
+  relevant_stars: 4
+  max_users: 50000
+  evaluation_seed: 2026
+  what_is_timed: nothing, because this plan explains a score
+  hardware: Kaggle GPU notebook, one Tesla T4, 4 cores, 31.3 GB memory
+  repetitions: 1
+
+analysis:
+  uncertainty_method: Standard error across sampled users within each arm.
+  exclusions: >-
+    The test cutoffs are not touched. Every arm uses the same users and removes the same
+    12-month seen films, so a recent-only model gives zero scores to users with no recent
+    ratings. That lowers its score, and the report must say so.
+  what_would_change_the_conclusion: >-
+    A large drop from removing unseen films or content features means the catalog is helping
+    unfairly, and those inputs change before a full plan is registered. No drop, with no gain
+    in the recent-only arms, leaves the gain unexplained, and no full plan is registered until
+    it is explained.
+  known_limitations: >-
+    One seed on one cutoff, so this explains a pilot and is not a result. Recent-only arms
+    preview part of the main experiment on the tuning cutoff only. Using the two-tower input
+    window of 50 films per user is not the same as a short training window.

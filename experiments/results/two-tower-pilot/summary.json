@@ -1,0 +1,13 @@
+{
+  "plan": "two-tower-pilot",
+  "code_commit": "85444bee125e99d4de00b7976759f9b0c6dc3c1a",
+  "machine": {
+    "device": "cuda:0",
+    "gpu": "Tesla T4",
+    "torch": "2.11.0+cu128"
+  },
+  "chosen_settings": {
+    "two-tower": "two-tower/epochs=3/lr=0.001/temperature=0.05"
+  },
+  "results": []
+}
