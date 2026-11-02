@@ -144,3 +144,30 @@ Two-Tower model must beat the better of the two ALS results, which refines decis
 Monthly partitions read faster, but training showed no clear whole-job saving, because reading is
 about 3 to 4% of the job. They stay as the storage layout (decision 014). The time saved by a short
 window comes from using fewer rows, and it is reported as that.
+
+## 025: Prepare training examples with NumPy, not Spark
+
+The roadmap planned to use Spark here. The work is sorting that fits in memory, and NumPy keeps it
+easy to test. Spark keeps its jobs of building the dataset and training ALS.
+
+## 026: Use only earlier days from inside the training window as model input
+
+Reading history from before the window would defeat the main question, because a 1-month model
+could still see years of ratings. Dates have no time of day, so same-day ratings are left out of an
+example's input. The model also has no per-user ID and reads only the films a user rated.
+
+## 027: Keep PyTorch as an optional extra, pinned to Kaggle's version
+
+Installing this package on Kaggle must not replace Kaggle's GPU build. The version is pinned so
+tests run on the same PyTorch as real training.
+
+## 028: Compare models by quality, and do not rank them by speed across hardware
+
+ALS ran on CPUs and the two-tower model on a GPU, so their seconds measure different machines. Times
+are reported with the hardware named, and no model is called faster than one on other hardware.
+
+## 029: Report recent popularity in the main experiment
+
+Popularity over the last month beat both tuned 12-month ALS models, so 12-month popularity alone is
+too weak a baseline. This extends decision 023. Every later comparison includes recent popularity,
+which takes under a second to fit.

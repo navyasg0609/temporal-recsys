@@ -41,3 +41,12 @@ number is not in this table, it is not published.
 | Mean fit time, Spark preference ALS, 12-month window | 370.1 s | Kaggle CPU notebook, 4 cores, 31.3 GB, Spark local mode | spark-als | `trs spark-als` | `47d06a7` |
 | Mean fit time, NumPy preference ALS, widened grid | 484.8 s | Kaggle CPU notebook, 4 cores, 31.3 GB | baseline-table-v2 | `trs baseline` | `47d06a7` |
 | Whole-job time, one Spark fit on 89,313,064 ratings | 676.2 s | Kaggle CPU notebook, 4 cores, 31.3 GB, Spark local mode | spark-full-history | `trs spark-als` | `47d06a7` |
+| Temporal NDCG@10, two-tower model, 12-month window | 0.1023 (0.0909 to 0.1150) | Kaggle GPU notebook, one Tesla T4, 4 cores, 31.3 GB | two-tower | `trs two-tower` | `4c5a1ec` |
+| Temporal Recall@10, two-tower model, 12-month window | 0.1197 (0.1082 to 0.1320) | Kaggle GPU notebook, one Tesla T4, 4 cores, 31.3 GB | two-tower | `trs two-tower` | `4c5a1ec` |
+| Temporal NDCG@10, popularity over the last month | 0.0806 (0.0680 to 0.1052) | Kaggle GPU notebook, one Tesla T4, 4 cores, 31.3 GB | two-tower | `trs two-tower` | `4c5a1ec` |
+| Temporal Recall@10, popularity over the last month | 0.0923 (0.0771 to 0.1148) | Kaggle GPU notebook, one Tesla T4, 4 cores, 31.3 GB | two-tower | `trs two-tower` | `4c5a1ec` |
+| Two-tower against 1-month popularity | No clear difference: ranges overlap | Kaggle GPU notebook, one Tesla T4, 4 cores, 31.3 GB | two-tower | `trs two-tower` | `4c5a1ec` |
+| Two-tower NDCG@10 over Spark ALS | 2.08 times, no overlap | Kaggle GPU notebook, one Tesla T4, 4 cores, 31.3 GB, ALS on a CPU notebook of the same size | two-tower, spark-als | `trs two-tower` | `4c5a1ec` |
+| 1-month popularity NDCG@10 over Spark ALS | 1.64 times, no overlap | Kaggle GPU notebook, one Tesla T4, 4 cores, 31.3 GB, ALS on a CPU notebook of the same size | two-tower, spark-als | `trs two-tower` | `4c5a1ec` |
+| Mean training time, two-tower model, 12-month window | 424.2 s | Kaggle GPU notebook, one Tesla T4, 4 cores, 31.3 GB | two-tower | `trs two-tower` | `4c5a1ec` |
+| Training time, one two-tower run on 89,313,064 ratings | 783.7 s | Kaggle GPU notebook, one Tesla T4, 4 cores, 31.3 GB | two-tower-full-history | `trs two-tower` | `4c5a1ec` |

@@ -406,7 +406,7 @@ commit `f323dfe`, on the July 2005 tuning cutoff only, with one seed. Every arm 
 absent from training changed nothing, and those films hold only 0.03% of relevant test ratings.
 Title and year features added little, 0.1135 against 0.1121 on one seed.
 
-Most of the gap is recency. Popularity trained on the last month alone scored 2.67 times its
+Most of the gap is recency. Popularity trained on the last month alone scored 2.66 times its
 12-month score. That is higher than preference ALS on any window tested here, and much simpler.
 The two-tower model still scored 1.26 times higher than 1-month popularity.
 
@@ -427,3 +427,65 @@ ratings in that window, which lowers its score.
 **What it changes:** the two-tower plan adds 1-month popularity on the test cutoffs, and uses 3
 tuning settings to keep this version basic. The result also points to a strong answer to the main
 question, which Phase 4 must test properly.
+
+## 2026-11-02: Two-tower model on the temporal split
+
+**Expected:** see `experiments/registered/two-tower.yaml`. The model would beat Spark ALS and
+1-month popularity with no overlap in ranges, and 1-month popularity would beat 12-month ALS.
+
+**Ran:** `trs two-tower` on a Kaggle GPU notebook (one Tesla T4, 4 cores, 31.3 GB) at commit
+`4c5a1ec`. ALS results come from a CPU notebook of the same size, so times are not compared.
+
+**Chosen on the July tuning cutoff:** `temperature=0.1`, the top of the grid. It led
+`temperature=0.05` by 0.000005, far inside the 0.0008 standard error, so the choice is noise.
+
+**Temporal test, known users. Mean and range across cutoffs and seeds:**
+
+| Model | Arms | NDCG@10 | Recall@10 |
+|---|---|---|---|
+| Two-tower | 6 | 0.1023 (0.0909 to 0.1150) | 0.1197 (0.1082 to 0.1320) |
+| Popularity, last month | 3 | 0.0806 (0.0680 to 0.1052) | 0.0923 (0.0771 to 0.1148) |
+| Spark preference ALS | 6 | 0.0491 (0.0477 to 0.0520) | 0.0573 (0.0551 to 0.0608) |
+| NumPy preference ALS, version 2 | 6 | 0.0488 (0.0471 to 0.0517) | 0.0568 (0.0542 to 0.0602) |
+| Popularity, 12 months | 3 | 0.0306 (0.0292 to 0.0318) | 0.0350 (0.0335 to 0.0360) |
+
+**NDCG@10 by cutoff, with the two seeds shown for the two-tower model:**
+
+| Test month | Two-tower | Popularity, last month |
+|---|---|---|
+| August 2005 | 0.1150, 0.1129 | 0.1052 |
+| September 2005 | 0.0909, 0.0917 | 0.0680 |
+| October 2005 | 0.1020, 0.1012 | 0.0686 |
+
+**Prediction check:**
+
+- The two-tower model beats Spark ALS with no overlap: confirmed, by 2.08 times.
+- The two-tower model beats 1-month popularity with no overlap: **not confirmed**. The ranges
+  overlap, so the plan's rule says no clear difference. The model did score higher in every
+  month, but that was not the registered test. The overlap comes from months differing, and only
+  three months were tested.
+- 1-month popularity beats 12-month ALS: confirmed, by 1.64 times with no overlap.
+
+**What happened:** a popularity count over the last month scored 2.64 times higher than the same
+count over 12 months, and beat both tuned 12-month ALS models. The two-tower model beat ALS, which
+meets decision 010's requirement, but it is not clearly better than the simple recent baseline.
+
+**Limits:** three test months and two seeds. The grid was smaller than ALS's. The model's input
+stops at each user's latest 50 films, whatever the training window. Offline scores favor popular
+films, and what the service promoted may explain part of the recency effect, which was not tested.
+
+**What it changes:** the main experiment reports recent popularity next to every model
+(decision 029).
+
+## 2026-11-02: One two-tower run on all history
+
+**Expected:** see `experiments/registered/two-tower-full-history.yaml`. Training would take about
+twice the pilot's 376 seconds.
+
+**Ran:** `trs two-tower` on the same setup at commit `4c5a1ec`, on 89,313,064 ratings.
+
+**What happened:** the prediction held. Training took 783.7 seconds, 2.08 times the pilot, on 2.02
+times the rows. NDCG@10 was 0.1030 with untuned settings. This is a timing check and does not
+compare history lengths.
+
+**Not measured:** Kaggle's weekly GPU allowance and session limit. None of these runs reached them.

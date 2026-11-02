@@ -1,6 +1,6 @@
 # Roadmap
 
-**Status:** Phases 0, 1, 2 and 3 complete. Phase 3b is next.
+**Status:** Phases 0, 1, 2, 3 and 3b complete. Phase 4 is next.
 
 Update this file when a phase finishes. A phase is done only when its exit
 criteria have been demonstrated with real output.
@@ -58,7 +58,7 @@ reason it does not is understood and documented.
 - Implement a Two-Tower model in PyTorch behind the same evaluation interface.
 - User tower: encodes the user's recent ratings. Item tower: encodes the film's ID,
   title and release year. ID-only towers would be close to matrix factorization.
-- Use Spark to prepare training examples and PyTorch to train.
+- Prepare training examples with NumPy (decision 025) and train with PyTorch.
 - Confirm a free GPU is available, and record its real limits.
 - Check that it runs on users and films outside the training window.
 
