@@ -1,0 +1,38 @@
+{
+  "plan": "two-tower",
+  "code_commit": "4c5a1ece6a2bb390a93b897b0f9379984de457ea",
+  "machine": {
+    "device": "cuda:0",
+    "gpu": "Tesla T4",
+    "torch": "2.11.0+cu128"
+  },
+  "chosen_settings": {
+    "two-tower": "two-tower/epochs=3/lr=0.001/temperature=0.1"
+  },
+  "results": [
+    {
+      "stage": "test",
+      "model": "popularity-recent",
+      "arms": 3,
+      "ndcg_mean": 0.08062877307716032,
+      "ndcg_min": 0.06804286893753317,
+      "ndcg_max": 0.10521302474658585,
+      "recall_mean": 0.09226259788359789,
+      "recall_min": 0.07707370634920635,
+      "recall_max": 0.11477115873015875,
+      "fit_seconds_mean": 0.0
+    },
+    {
+      "stage": "test",
+      "model": "two-tower",
+      "arms": 6,
+      "ndcg_mean": 0.10228100861787554,
+      "ndcg_min": 0.09091043277034667,
+      "ndcg_max": 0.11503420444933608,
+      "recall_mean": 0.11971585714285715,
+      "recall_min": 0.1081549523809524,
+      "recall_max": 0.13197943650793653,
+      "fit_seconds_mean": 424.2031267245001
+    }
+  ]
+}
