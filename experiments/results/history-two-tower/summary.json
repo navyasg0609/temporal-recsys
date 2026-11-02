@@ -1,0 +1,99 @@
+{
+  "plan": "history-windows",
+  "code_commit": "2fe0302262dba579efc520c7b699d635a0c67e55",
+  "machine": {
+    "device": "cuda:0"
+  },
+  "results": [
+    {
+      "model": "two-tower",
+      "window": "1",
+      "arms": 6,
+      "ndcg_mean": 0.09130195727796021,
+      "ndcg_min": 0.0773913033424323,
+      "ndcg_max": 0.11447857312975761,
+      "recall_mean": 0.10646852645502645,
+      "recall_min": 0.0910665238095238,
+      "recall_max": 0.12868464285714287,
+      "train_rows_mean": 5040237.666666667,
+      "fit_seconds_mean": 29.668268327000686,
+      "fit_seconds_min": 28.12671641700217,
+      "fit_seconds_max": 31.991594392999104
+    },
+    {
+      "model": "two-tower",
+      "window": "12",
+      "arms": 6,
+      "ndcg_mean": 0.10280926739075656,
+      "ndcg_min": 0.09184208344350618,
+      "ndcg_max": 0.11491212855319133,
+      "recall_mean": 0.12042074603174605,
+      "recall_min": 0.10942848412698412,
+      "recall_max": 0.1320626190476191,
+      "train_rows_mean": 49204009.666666664,
+      "fit_seconds_mean": 424.4171211768341,
+      "fit_seconds_min": 406.74593401699894,
+      "fit_seconds_max": 439.98430193199965
+    },
+    {
+      "model": "two-tower",
+      "window": "24",
+      "arms": 6,
+      "ndcg_mean": 0.10264784870874905,
+      "ndcg_min": 0.09140106403238894,
+      "ndcg_max": 0.11358079875019784,
+      "recall_mean": 0.12035426322751322,
+      "recall_min": 0.1087001507936508,
+      "recall_max": 0.13168498412698412,
+      "train_rows_mean": 71774133.66666667,
+      "fit_seconds_mean": 632.4573700641671,
+      "fit_seconds_min": 598.769007308998,
+      "fit_seconds_max": 664.3677054460022
+    },
+    {
+      "model": "two-tower",
+      "window": "3",
+      "arms": 6,
+      "ndcg_mean": 0.09675544782220627,
+      "ndcg_min": 0.08607382248699735,
+      "ndcg_max": 0.10820791201407948,
+      "recall_mean": 0.11307010714285713,
+      "recall_min": 0.10361039682539681,
+      "recall_max": 0.12376243650793649,
+      "train_rows_mean": 15085078.666666666,
+      "fit_seconds_mean": 111.22283773316728,
+      "fit_seconds_min": 107.41119770600199,
+      "fit_seconds_max": 113.93134254100187
+    },
+    {
+      "model": "two-tower",
+      "window": "6",
+      "arms": 6,
+      "ndcg_mean": 0.10070740851049335,
+      "ndcg_min": 0.0905970705517713,
+      "ndcg_max": 0.1120498423707314,
+      "recall_mean": 0.1178859074074074,
+      "recall_min": 0.10771787301587302,
+      "recall_max": 0.13049773015873015,
+      "train_rows_mean": 28182024.333333332,
+      "fit_seconds_mean": 231.60414730416687,
+      "fit_seconds_min": 228.91249806700034,
+      "fit_seconds_max": 233.344141157002
+    },
+    {
+      "model": "two-tower",
+      "window": "all",
+      "arms": 6,
+      "ndcg_mean": 0.10097014321355982,
+      "ndcg_min": 0.09018330186423668,
+      "ndcg_max": 0.11075223264830905,
+      "recall_mean": 0.11890380423280422,
+      "recall_min": 0.1074415,
+      "recall_max": 0.12949339682539682,
+      "train_rows_mean": 84283509.33333333,
+      "fit_seconds_mean": 740.7151018858331,
+      "fit_seconds_min": 698.3275197959974,
+      "fit_seconds_max": 781.7783588850034
+    }
+  ]
+}
