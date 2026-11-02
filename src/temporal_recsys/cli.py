@@ -8,12 +8,23 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from temporal_recsys.data.benchmark import load_plan, run_benchmark
-from temporal_recsys.data.pipeline import ingest
+from temporal_recsys.data.pipeline import MONTHLY_DIR, ingest
 from temporal_recsys.data.quality import NETFLIX_PRIZE
 from temporal_recsys.data.spark import create_spark_session
 from temporal_recsys.data.synthetic import SyntheticConfig, generate_ratings, write_raw_file
 from temporal_recsys.experiments.baseline import load_plan as load_baseline_plan
 from temporal_recsys.experiments.baseline import run_baseline
+from temporal_recsys.experiments.history import (
+    NO_SEED,
+    POPULARITY,
+    SPARK_ALS,
+    TWO_TOWER,
+    popularity_trainer,
+    run_history,
+    spark_als_trainer,
+    two_tower_trainer,
+)
+from temporal_recsys.experiments.history import load_plan as load_history_plan
 from temporal_recsys.experiments.spark_als import load_plan as load_spark_als_plan
 from temporal_recsys.experiments.spark_als import run_spark_als
 from temporal_recsys.experiments.training_latency import load_plan as load_latency_plan
@@ -76,6 +87,15 @@ def build_parser() -> argparse.ArgumentParser:
     diagnostic.add_argument("--plan", type=Path, required=True)
     diagnostic.add_argument("--output-dir", type=Path, required=True)
     diagnostic.add_argument("--code-commit", required=True)
+
+    history = commands.add_parser("history", help="train one model on every history window")
+    history.add_argument("--model", choices=(POPULARITY, SPARK_ALS, TWO_TOWER), required=True)
+    history.add_argument("--data-dir", type=Path, required=True)
+    history.add_argument("--raw-dir", type=Path, help="film titles, for the two-tower model")
+    history.add_argument("--plan", type=Path, required=True)
+    history.add_argument("--output-dir", type=Path, required=True)
+    history.add_argument("--code-commit", required=True)
+    history.add_argument("--driver-memory", default="2g")
     return parser
 
 
@@ -160,6 +180,56 @@ def run_two_tower_diagnostic_command(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_history_command(args: argparse.Namespace) -> int:
+    plan = load_history_plan(args.plan)
+    monthly_dir = args.data_dir / MONTHLY_DIR
+    if args.model == POPULARITY:
+        trainer = popularity_trainer(plan)
+        summary = run_history(
+            monthly_dir,
+            plan,
+            POPULARITY,
+            trainer,
+            (NO_SEED,),
+            args.output_dir,
+            args.code_commit,
+            {},
+        )
+    elif args.model == SPARK_ALS:
+        spark = create_spark_session("history", driver_memory=args.driver_memory)
+        try:
+            machine = {"spark": spark.version, "master": spark.sparkContext.master}
+            summary = run_history(
+                monthly_dir,
+                plan,
+                SPARK_ALS,
+                spark_als_trainer(spark, args.data_dir, plan),
+                plan.seeds,
+                args.output_dir,
+                args.code_commit,
+                machine,
+            )
+        finally:
+            spark.stop()
+    else:
+        # PyTorch is an optional extra, so only this branch may require it.
+        from temporal_recsys.experiments.two_tower import pick_device
+
+        device = pick_device()
+        summary = run_history(
+            monthly_dir,
+            plan,
+            TWO_TOWER,
+            two_tower_trainer(args.raw_dir, plan, args.output_dir, device),
+            plan.seeds,
+            args.output_dir,
+            args.code_commit,
+            {"device": device},
+        )
+    print(json.dumps(summary, indent=2))
+    return 0
+
+
 def run_synthetic(args: argparse.Namespace) -> int:
     args.output_dir.mkdir(parents=True, exist_ok=True)
     data = generate_ratings(SyntheticConfig(seed=args.seed))
@@ -196,6 +266,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         "training-latency": run_training_latency_command,
         "two-tower": run_two_tower_command,
         "two-tower-diagnostic": run_two_tower_diagnostic_command,
+        "history": run_history_command,
     }
     return commands[args.command](args)
 

@@ -143,7 +143,7 @@ def run_two_tower(
             ndcg: float = finished[arm_id]["ndcg"]
             return ndcg
         train, test = split_by_time(ratings, plan.split_at(cutoff))
-        checkpoint = output_dir / CHECKPOINT_DIR / f"{_file_name(arm_id)}.pt"
+        checkpoint = output_dir / CHECKPOINT_DIR / f"{file_name(arm_id)}.pt"
         model = TwoTowerModel(config, data, device, checkpoint)
         model.fit(train, plan.n_films)
         result = evaluate(model, train, test, plan.n_films, plan.evaluation)
@@ -223,5 +223,5 @@ def _config_name(config: TwoTowerConfig) -> str:
     )
 
 
-def _file_name(arm_id: str) -> str:
+def file_name(arm_id: str) -> str:
     return re.sub(r"[^A-Za-z0-9.-]+", "_", arm_id)
