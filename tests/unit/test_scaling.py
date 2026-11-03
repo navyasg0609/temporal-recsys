@@ -1,9 +1,16 @@
 from datetime import date
+from pathlib import Path
 from typing import Any
 
 import pytest
 
-from temporal_recsys.experiments.scaling import NUMPY, SPARK, ScalingPlan, summarize_scaling
+from temporal_recsys.experiments.scaling import (
+    NUMPY,
+    SPARK,
+    ScalingPlan,
+    load_plan,
+    summarize_scaling,
+)
 from temporal_recsys.models.als import AlsConfig, AlsVariant
 from temporal_recsys.models.spark_als import SparkAlsConfig
 
@@ -105,6 +112,18 @@ def test_plan_needs_spark_on_one_core() -> None:
             0,
             0,
             10,
+            "1g",
             SparkAlsConfig(),
             AlsConfig(AlsVariant.PREFERENCE),
         )
+
+
+def test_registered_plan_loads() -> None:
+    plan = load_plan(Path("experiments/registered/scaling.yaml"))
+
+    assert plan.core_counts == (1, 2, 4)
+    assert plan.arms[-1] == (NUMPY, 1)
+    assert plan.spark_model.regularization == 0.01
+    assert plan.numpy_model.regularization == 10.0
+    assert plan.numpy_model.variant is AlsVariant.PREFERENCE
+    assert plan.split.train_start == date(2004, 8, 1)

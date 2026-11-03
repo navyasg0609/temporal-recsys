@@ -23,6 +23,7 @@ PLAN = ScalingPlan(
     warmup_passes=1,
     order_seed=1,
     n_films=N_FILMS,
+    driver_memory="1g",
     spark_model=SparkAlsConfig(rank=2, iterations=1, seed=1),
     numpy_model=AlsConfig(AlsVariant.PREFERENCE, rank=2, iterations=1),
 )
@@ -42,9 +43,9 @@ def data_dir(spark: SparkSession, tmp_path_factory: pytest.TempPathFactory) -> P
 def test_each_arm_runs_on_its_cores_and_a_restart_keeps_them(
     data_dir: Path, tmp_path: Path
 ) -> None:
-    summary = run_scaling(data_dir, PLAN, tmp_path, code_commit="abc", driver_memory="1g")
+    summary = run_scaling(data_dir, PLAN, tmp_path, code_commit="abc")
     finished = (tmp_path / MEASUREMENTS_FILE).read_text(encoding="utf-8")
-    run_scaling(data_dir, PLAN, tmp_path, code_commit="abc", driver_memory="1g")
+    run_scaling(data_dir, PLAN, tmp_path, code_commit="abc")
 
     assert summary["code_commit"] == "abc"
     assert summary["rows"] > 0

@@ -54,6 +54,7 @@ class ScalingPlan:
     warmup_passes: int
     order_seed: int
     n_films: int
+    driver_memory: str
     spark_model: SparkAlsConfig
     numpy_model: AlsConfig
 
@@ -83,6 +84,7 @@ def load_plan(path: Path) -> ScalingPlan:
         warmup_passes=design["warmup_passes"],
         order_seed=design["order_seed"],
         n_films=design["n_films"],
+        driver_memory=design["driver_memory"],
         spark_model=SparkAlsConfig(
             spark["rank"],
             spark["regularization"],
@@ -149,7 +151,7 @@ def in_fresh_process(function: Callable[..., dict[str, Any]], *args: Any) -> dic
 
 
 def run_scaling(
-    data_dir: Path, plan: ScalingPlan, output_dir: Path, code_commit: str, driver_memory: str
+    data_dir: Path, plan: ScalingPlan, output_dir: Path, code_commit: str
 ) -> dict[str, Any]:
     """Run every arm in a freshly shuffled order on each pass.
 
@@ -175,7 +177,7 @@ def run_scaling(
                     plan.spark_model,
                     plan.n_films,
                     cores,
-                    driver_memory,
+                    plan.driver_memory,
                 )
             else:
                 timed = in_fresh_process(
@@ -199,7 +201,7 @@ def run_scaling(
         "machine": {
             "cpu_count": os.cpu_count(),
             "spark": pyspark.__version__,
-            "driver_memory": driver_memory,
+            "driver_memory": plan.driver_memory,
         },
     } | summarize_scaling(list(finished.values()))
     (output_dir / SUMMARY_FILE).write_text(json.dumps(summary, indent=2), encoding="utf-8")

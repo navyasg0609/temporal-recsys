@@ -104,7 +104,6 @@ def build_parser() -> argparse.ArgumentParser:
     scaling.add_argument("--plan", type=Path, required=True)
     scaling.add_argument("--output-dir", type=Path, required=True)
     scaling.add_argument("--code-commit", required=True)
-    scaling.add_argument("--driver-memory", default="2g")
     return parser
 
 
@@ -241,11 +240,7 @@ def run_history_command(args: argparse.Namespace) -> int:
 
 def run_scaling_command(args: argparse.Namespace) -> int:
     summary = run_scaling(
-        args.data_dir,
-        load_scaling_plan(args.plan),
-        args.output_dir,
-        args.code_commit,
-        args.driver_memory,
+        args.data_dir, load_scaling_plan(args.plan), args.output_dir, args.code_commit
     )
     print(json.dumps(summary, indent=2))
     return 0

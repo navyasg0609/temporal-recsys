@@ -1,0 +1,76 @@
+id: scaling
+version: 1
+registered_on: "2026-11-03"
+supersedes: null
+change_reason: null
+
+question: >-
+  How much faster does a Spark ALS training job get with 2 and 4 cores than with 1, and how
+  many cores does Spark need to beat a single-threaded program doing the same job (COST,
+  McSherry et al., 2015)?
+prediction: >-
+  Speedup is below linear. 2 cores give between 1.5 and 2.0 times the speed of 1 core, and
+  4 cores give less than 3.0 times. Spark on 1 core is slower than single-threaded NumPy ALS.
+  Spark on 2 cores does not clearly beat NumPy, and Spark on 4 cores does, so COST is 4. This
+  follows Phase 3, where Spark on every core fit 23.7% faster than NumPy ALS.
+
+data:
+  dataset: Netflix Prize, 100,480,507 ratings
+  source_revision: monthly data from trs ingest, checked against known totals
+  partition_scheme: one folder per rating month
+
+design:
+  baseline: Spark ALS on 1 core for speedup, single-threaded NumPy ALS for COST
+  treatments:
+    - Spark ALS on 2 cores
+    - Spark ALS on 4 cores
+  cutoff: "2005-08-01"
+  window_months: 12
+  core_counts: [1, 2, 4]
+  repetitions: 3
+  warmup_passes: 1
+  order_seed: 2026
+  n_films: 17770
+  driver_memory: 20g
+  spark_als:
+    rank: 20
+    regularization: 0.01
+    confidence: 3.0
+    iterations: 10
+    seed: 1
+  numpy_als:
+    rank: 20
+    regularization: 10.0
+    confidence: 3.0
+    iterations: 10
+    seed: 1
+
+measurement:
+  primary_metric: median whole-job seconds per arm, speedup over Spark on 1 core, and COST
+  secondary_metrics:
+    - read seconds
+    - fit seconds
+    - rows read
+  what_is_timed: >-
+    For Spark, reading and caching, fitting, and copying factors. For NumPy, reading and
+    fitting. Starting a process and a Spark session is not timed. Scoring is not timed.
+  hardware: >-
+    Kaggle CPU notebook, 4 cores, 31.3 GB memory, Spark in local mode. Physical cores and
+    threads per core are recorded from lscpu with the results.
+  repetitions: 3
+
+analysis:
+  uncertainty_method: Median and range across the three measured passes.
+  exclusions: The warm-up pass is excluded, because it fills the file cache.
+  what_would_change_the_conclusion: >-
+    Spark beats NumPy at a core count only if its slowest run is faster than NumPy's fastest
+    run. COST is the fewest cores at which it does, or none. If the arms read different rows,
+    the run is invalid.
+  known_limitations: >-
+    Each engine uses its own tuned settings, which Phase 3 found give no clear difference in
+    quality. NumPy ALS is a plain Python loop, so a faster single-threaded program, such as an
+    optimized C++ library, would raise COST. Spark in local mode runs threads in one process on
+    one machine, so this measures how Spark uses cores, not how it behaves across a network.
+    If the 4 cores are 2 physical cores with 2 threads each, the 4-core arm shares physical
+    cores. Runs in other sessions must not share this machine. One window and one cutoff
+    cannot show how this changes with data size.
