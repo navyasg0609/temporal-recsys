@@ -32,8 +32,25 @@ So there is a real trade-off:
 > **How much history does a recommender actually need, and what does each extra
 > month of data cost in computing time?**
 
-We do not know the answer yet. The project is designed so that any clear result is
-useful, including "more history always helps."
+The project was designed so that any clear result would be useful, including "more
+history always helps."
+
+### What we found
+
+The answer depends on the model. On Netflix ratings, tested on August to October 2005:
+
+- **Simple models do best with the latest month.** Recommending the films that were
+  popular last month, and the classic ALS model, both scored highest on 1 month of
+  history, and their scores fell as history grew. ALS on all history took 8.68 times as long
+  to train and scored lower.
+- **The neural model needs about 6 months.** It scores within 5% of its best from 6
+  months on, and stays flat after that. Twelve months took 1.83 times as long to train
+  for a 2% gain.
+- **History beyond a year helped no model,** while training time kept growing.
+- **The neural model scored highest** at every history length and in every test month.
+
+The numbers, the chart and their limits are in the [lab notebook](LAB_NOTEBOOK.md),
+and each number has a row in [CLAIMS.md](CLAIMS.md).
 
 ## The project
 
@@ -145,11 +162,11 @@ available. A GPU is a chip that greatly speeds up neural network training.
 ### Phase 4: Run the main experiment (1.5 weeks)
 
 We write down the experiment plan, then run every combination of model, history
-length, time period and seed. If time is tight, the neural model runs on fewer history
-lengths, and we write that down first. We also look at whether the answer differs for
-new and long-time users, or for popular and niche films.
+length, time period and seed. To keep this version simple, the split by type of user
+or film and a second dataset were left out (decision 032).
 
-**Finished when:** the main chart is complete and every number is recorded.
+**Finished when:** the main chart is complete and every number is recorded. Done: see
+"What we found" above.
 
 ### Phase 5: Measure scaling (3 days)
 
