@@ -17,9 +17,13 @@ RUN uv sync --locked --no-dev --extra serve $SKIP --no-editable
 FROM python:3.13-slim
 RUN useradd --uid 10001 --no-create-home --shell /usr/sbin/nologin app
 COPY --from=build /app/.venv /app/.venv
+# One BLAS thread: each request's maths is tiny, and NumPy would otherwise start a thread per
+# CPU it sees, so requests served at once fight over CPUs (docs/LAB_NOTEBOOK.md, 2026-11-04).
 ENV PATH=/app/.venv/bin:$PATH \
     BUNDLE_PATH=/data/bundle.npz \
-    PYTHONUNBUFFERED=1
+    PYTHONUNBUFFERED=1 \
+    OPENBLAS_NUM_THREADS=1 \
+    OMP_NUM_THREADS=1
 USER 10001
 EXPOSE 8000
 CMD ["uvicorn", "--factory", "temporal_recsys.serving.app:create_app", \
