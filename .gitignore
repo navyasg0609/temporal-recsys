@@ -39,3 +39,6 @@ CLAUDE.local.md
 Thumbs.db
 .vscode/
 .idea/
+
+# Output of trs reproduce --sample
+/sample-run/

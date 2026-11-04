@@ -23,6 +23,8 @@ jobs:
       - run: uv run ruff format --check .
       - run: uv run mypy
       - run: uv run pytest
+      # The command the README gives a new reader, run exactly as written.
+      - run: uv run trs reproduce --sample
 
   # Deploy to a three-node kind cluster with a synthetic bundle, then check the planted
   # answers from a pod inside the cluster. No rating data is involved.

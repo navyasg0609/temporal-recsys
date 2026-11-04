@@ -260,3 +260,11 @@ busy. The load test compares one and two copies instead of assuming either answe
 Result: two copies reached 1.32 times one copy's peak requests a second, below the registered 1.5,
 and both missed the target first at 600 users. By the registered rule a second copy does not raise
 capacity on this laptop, so decision 039 stands (`docs/LAB_NOTEBOOK.md`, 2026-11-04).
+
+## 043: Reproduce the method on synthetic data with popularity and NumPy ALS
+
+`trs reproduce --sample` must run on any laptop, and Spark does not run on Windows (decision 018),
+so it trains popularity and single-machine ALS only, on data written without Spark. Synthetic users
+pick films at random and only their stars follow their tastes, so it uses ALS that predicts stars:
+preference ALS, used in the main experiment, would find nothing. It checks a planted answer rather
+than reproducing a finding, and CI runs it as the README gives it.

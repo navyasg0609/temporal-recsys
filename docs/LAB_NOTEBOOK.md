@@ -745,3 +745,23 @@ production cluster, and the numbers describe this laptop only.
 **What it changes:** on this laptop the service meets its target up to 400 simultaneous users and
 fails at 600, with one copy or two. By the registered rule, a second copy does not raise capacity
 here, which supports decision 039's choice to skip autoscaling on one machine (decision 042).
+
+## 2026-11-04: A sample run anyone can repeat
+
+**Goal:** one command that runs the main method end to end on synthetic data and checks a known
+answer, for a reader without Spark, a GPU or the Netflix data (decision 043).
+
+**Setup:** every synthetic user's tastes change in January 2005. Windows of 1, 3, 6 and 12 months
+and all history end at cutoffs in August, September and October 2005, as in the main experiment.
+Windows of 6 months or less hold only ratings from after the change.
+
+**Dead end:** at the generator's default size (2,000 users, 300 films, 50,000 ratings), ALS scored
+best on all history. Each user has about one rating a month, so more data helped more than old
+tastes hurt, and the planted change did not show. The data was made denser, as in the planted-drift
+test: 500 users, 200 films, 40,000 ratings and less noise. The settings in `configs/sample.yaml`
+were fixed after this one trial.
+
+**What happened:** ALS on the 6 months after the change scored above ALS on all history at every
+cutoff, with no overlap in their ranges, so the check passes. Popularity hardly changed with window
+length, as expected, because the planted change moves tastes, not which films are popular. These
+are synthetic numbers that check the code, not findings, so they are not in `docs/CLAIMS.md`.

@@ -10,6 +10,7 @@ import itertools
 import json
 import logging
 import statistics
+import time
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from datetime import date
@@ -31,6 +32,7 @@ from temporal_recsys.experiments.baseline import (
     make_record,
 )
 from temporal_recsys.experiments.spark_als import train_and_time
+from temporal_recsys.models.als import AlsConfig, AlsModel, AlsVariant
 from temporal_recsys.models.fallback import PopularityFallback
 from temporal_recsys.models.popularity import PopularityModel
 from temporal_recsys.models.spark_als import SparkAlsConfig
@@ -41,6 +43,7 @@ ALL_HISTORY = "all"
 NO_SEED = 0
 POPULARITY = "popularity"
 SPARK_ALS = "spark-als"
+NUMPY_ALS = "numpy-als"
 TWO_TOWER = "two-tower"
 
 
@@ -151,6 +154,26 @@ def popularity_trainer(plan: HistoryPlan) -> Trainer:
         model = PopularityModel()
         model.fit(window, plan.n_films)
         return Trained(model, 0.0, {})
+
+    return train
+
+
+def numpy_als_trainer(plan: HistoryPlan, variant: AlsVariant) -> Trainer:
+    """Train single-machine ALS, which needs no Spark, with the plan's ALS settings."""
+
+    def train(_arm_id: str, _split: TemporalSplit, window: RatingArrays, seed: int) -> Trained:
+        config = AlsConfig(
+            variant,
+            plan.als_rank,
+            plan.als_regularization,
+            plan.als_confidence,
+            plan.als_iterations,
+            seed,
+        )
+        model = AlsModel(config)
+        start = time.perf_counter()
+        model.fit(window, plan.n_films)
+        return Trained(model, time.perf_counter() - start, {})
 
     return train
 
@@ -312,8 +335,9 @@ def history_needed(records: Sequence[dict[str, Any]], tolerance: float = 0.05) -
         floor = (1 - tolerance) * max(means.values())
         close = {window for window, mean in means.items() if mean >= floor}
         passing = close if passing is None else passing & close
-    return min(passing or (), key=_window_length, default=None)
+    return min(passing or (), key=window_length, default=None)
 
 
-def _window_length(window: str) -> float:
+def window_length(window: str) -> float:
+    """Order windows by months, with all history last."""
     return float("inf") if window == ALL_HISTORY else int(window)

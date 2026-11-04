@@ -3,6 +3,7 @@
 import argparse
 import json
 import logging
+import subprocess
 import sys
 from collections.abc import Sequence
 from pathlib import Path
@@ -27,6 +28,8 @@ from temporal_recsys.experiments.history import (
 from temporal_recsys.experiments.history import load_plan as load_history_plan
 from temporal_recsys.experiments.load_test import load_plan as load_load_plan
 from temporal_recsys.experiments.load_test import run_load_test
+from temporal_recsys.experiments.sample import load_config as load_sample_config
+from temporal_recsys.experiments.sample import run_sample
 from temporal_recsys.experiments.scaling import load_plan as load_scaling_plan
 from temporal_recsys.experiments.scaling import run_scaling
 from temporal_recsys.experiments.spark_als import load_plan as load_spark_als_plan
@@ -118,6 +121,13 @@ def build_parser() -> argparse.ArgumentParser:
     scaling.add_argument("--plan", type=Path, required=True)
     scaling.add_argument("--output-dir", type=Path, required=True)
     scaling.add_argument("--code-commit", required=True)
+
+    reproduce = commands.add_parser("reproduce", help="run the method end to end")
+    reproduce.add_argument(
+        "--sample", action="store_true", help="on synthetic data with a planted answer"
+    )
+    reproduce.add_argument("--config", type=Path, default=Path("configs/sample.yaml"))
+    reproduce.add_argument("--output-dir", type=Path, default=Path("sample-run"))
     return parser
 
 
@@ -285,6 +295,39 @@ def run_scaling_command(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_reproduce_command(args: argparse.Namespace) -> int:
+    if not args.sample:
+        print(
+            "Only --sample runs here. The full-data runs need the Netflix Prize data and run "
+            "on Kaggle, one command per experiment: see docs/REPRODUCING.md.",
+            file=sys.stderr,
+        )
+        return 2
+    summary = run_sample(load_sample_config(args.config), args.output_dir, _code_commit())
+    print(f"{'Model':<12}{'Months':>8}{'Rows':>8}   NDCG@10, mean (range over test months)")
+    for row in summary["results"]:
+        print(
+            f"{row['model']:<12}{row['window']:>8}{row['train_rows_mean']:>8.0f}   "
+            f"{row['ndcg_mean']:.4f} ({row['ndcg_min']:.4f} to {row['ndcg_max']:.4f})"
+        )
+    window = summary["after_change_window"]
+    if not summary["planted_answer_found"]:
+        print(f"Planted answer NOT found: ALS on {window} months did not beat all history.")
+        return 1
+    print(f"Planted answer found: ALS on the {window} months after the change beat all history.")
+    return 0
+
+
+def _code_commit() -> str:
+    """Record the commit, or say there is none, as in a downloaded copy without git."""
+    try:
+        git = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True)  # noqa: S607
+        git.check_returncode()
+        return git.stdout.strip()
+    except (OSError, subprocess.CalledProcessError):
+        return "unknown"
+
+
 def run_synthetic(args: argparse.Namespace) -> int:
     args.output_dir.mkdir(parents=True, exist_ok=True)
     data = generate_ratings(SyntheticConfig(seed=args.seed))
@@ -325,6 +368,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         "scaling": run_scaling_command,
         "export-serving": run_export_serving_command,
         "load-test": run_load_test_command,
+        "reproduce": run_reproduce_command,
     }
     return commands[args.command](args)
 
