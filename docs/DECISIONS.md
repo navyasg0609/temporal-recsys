@@ -208,3 +208,9 @@ limit rather than adding a new dependency.
 The serving image needs only NumPy and the web framework, and Spark would add hundreds of megabytes
 it never uses. Spark becomes the `spark` extra, as PyTorch became the `neural` extra (decision 027).
 Kaggle runs now install the package with `pip install ./repo[spark]`.
+
+## 036: Rank through one function in evaluation and serving
+
+A service that ranks films differently from the evaluation would serve lists nobody measured. Both
+call `rank_unseen`, which removes films the user already rated and keeps the top k, and a test
+checks that the service returns the same lists as the evaluation for the same model.

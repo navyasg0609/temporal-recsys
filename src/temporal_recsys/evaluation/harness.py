@@ -10,6 +10,7 @@ from scipy.sparse import csr_matrix
 
 from temporal_recsys.data.arrays import RatingArrays
 from temporal_recsys.evaluation.metrics import ndcg_at_k, recall_at_k
+from temporal_recsys.evaluation.ranking import rank_unseen
 
 
 class Scorer(Protocol):
@@ -82,9 +83,9 @@ def evaluate(
     for start in range(0, len(sampled), config.batch_size):
         batch = sampled[start : start + config.batch_size]
         scores = model.score_users(batch)
-        for row in range(len(batch)):
-            scores[row, seen[start + row].indices] = -np.inf
-        for user_id, ranked in zip(batch.tolist(), _top_k(scores, config.k), strict=True):
+        seen_in_batch = [seen[start + row].indices for row in range(len(batch))]
+        ranked_lists = rank_unseen(scores, seen_in_batch, config.k)
+        for user_id, ranked in zip(batch.tolist(), ranked_lists, strict=True):
             relevant = relevant_by_user[user_id]
             ndcg_scores.append(ndcg_at_k(ranked, relevant, config.k))
             recall_scores.append(recall_at_k(ranked, relevant, config.k))
@@ -124,14 +125,6 @@ def _seen_matrix(train: RatingArrays, users: NDArray[np.int32], n_films: int) ->
     return csr_matrix(
         (values, (rows, selected.film_ids - 1)), shape=(len(users), n_films), dtype=np.bool_
     )
-
-
-def _top_k(scores: NDArray[np.float64], k: int) -> list[list[int]]:
-    candidates = np.argpartition(-scores, k - 1, axis=1)[:, :k]
-    candidate_scores = np.take_along_axis(scores, candidates, axis=1)
-    order = np.argsort(-candidate_scores, axis=1)
-    ranked: list[list[int]] = np.take_along_axis(candidates, order, axis=1).tolist()
-    return ranked
 
 
 def _standard_error(values: list[float]) -> float:
