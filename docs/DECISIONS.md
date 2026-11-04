@@ -33,7 +33,8 @@ multi-node Spark, and performance numbers name the setup they came from.
 
 The catalog has about 17,770 items, so exact scoring is small enough that an
 approximate nearest neighbor index would add complexity without a clear benefit.
-Load testing in Phase 7 will confirm this.
+Load testing in Phase 7 will confirm this. It found a p95 of 6.3 ms at 50 users and the target
+met up to 400 users on a laptop. Whether an approximate index would raise that limit was not tested.
 
 ## 007: Use synthetic data in CI
 
@@ -235,3 +236,27 @@ The roadmap's cut order lists autoscaling first. On one machine every copy of th
 same CPUs, so adding copies under load cannot add capacity, and an autoscaling demo would show the
 mechanism without a benefit. The cluster runs two copies, one per worker node, and the kind nodes are
 containers on one machine, which every result states.
+
+## 040: Set the latency target before load testing
+
+The service must answer within 100 ms at the 95th percentile, with at most 1% errors, because a
+recommendation list should arrive with the page. The failure point is the fewest simultaneous users
+at which the median over three passes misses either limit. Both are frozen in
+`experiments/registered/load-test.yaml` before any measured run.
+
+## 041: Keep the load generator off the service's CPUs
+
+The service's nodes are pinned to Docker CPUs 0 to 3, the control node to 4 to 7, and k6 to 8 to 11,
+so generating load does not take CPU from the service. These are Docker's virtual CPUs: Windows
+still schedules them onto physical cores, and this laptop mixes fast and slow cores, so every load
+result names that setup.
+
+## 042: Test whether a second copy adds capacity
+
+Decision 039 assumed extra copies cannot add capacity on one machine. Each copy is one Python process
+that uses about one CPU, and the service has four, so a second copy may help until the CPUs are
+busy. The load test compares one and two copies instead of assuming either answer.
+
+Result: two copies reached 1.32 times one copy's peak requests a second, below the registered 1.5,
+and both missed the target first at 600 users. By the registered rule a second copy does not raise
+capacity on this laptop, so decision 039 stands (`docs/LAB_NOTEBOOK.md`, 2026-11-04).

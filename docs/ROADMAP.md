@@ -1,6 +1,6 @@
 # Roadmap
 
-**Status:** Phases 0, 1, 2, 3, 3b, 4, 5 and 6 complete. Phase 7 is next.
+**Status:** Phases 0, 1, 2, 3, 3b, 4, 5, 6 and 7 complete. Phase 8 is next.
 
 Update this file when a phase finishes. A phase is done only when its exit
 criteria have been demonstrated with real output.
@@ -112,6 +112,9 @@ integration tests.
 - Ramp k6 past 500 virtual users until the service degrades.
 - Pin k6 and the service to separate CPU cores.
 - Record concurrency, requests per second, p95 latency and error rate.
+- Result: on a laptop the service meets its target up to 400 simultaneous users and misses it at
+  600, with one copy or two. A second copy raised peak requests a second by 1.32 times, below the
+  registered 1.5 (`docs/LAB_NOTEBOOK.md`, 2026-11-04).
 
 **Exit:** latency curve, failure point and a stated limitation of the local setup.
 

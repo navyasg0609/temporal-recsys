@@ -40,3 +40,17 @@ CI runs the same steps with the synthetic bundle on every pull request.
 The kind nodes are containers on one machine, so they share its CPUs and memory. The cluster tests
 scheduling, health checks and networking between nodes, not the capacity of separate machines. The
 service runs a fixed two copies without autoscaling (decision 039).
+
+## Load test
+
+With the cluster running and `artifacts/bundle.npz` in place:
+
+```
+uv run python deploy/load/sample_users.py
+uv run trs load-test --plan experiments/registered/load-test.yaml \
+  --output-dir experiments/results/load-test --code-commit "$(git rev-parse HEAD)"
+```
+
+It pins the nodes and k6 to separate Docker CPUs, steps from 50 to 2,000 simultaneous users for one
+and two copies, and saves each step as it finishes, so a stopped run resumes. It takes about 70
+minutes. The results and their limits are in `docs/LAB_NOTEBOOK.md` (2026-11-04).

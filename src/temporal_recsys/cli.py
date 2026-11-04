@@ -25,6 +25,8 @@ from temporal_recsys.experiments.history import (
     two_tower_trainer,
 )
 from temporal_recsys.experiments.history import load_plan as load_history_plan
+from temporal_recsys.experiments.load_test import load_plan as load_load_plan
+from temporal_recsys.experiments.load_test import run_load_test
 from temporal_recsys.experiments.scaling import load_plan as load_scaling_plan
 from temporal_recsys.experiments.scaling import run_scaling
 from temporal_recsys.experiments.spark_als import load_plan as load_spark_als_plan
@@ -98,6 +100,11 @@ def build_parser() -> argparse.ArgumentParser:
     history.add_argument("--output-dir", type=Path, required=True)
     history.add_argument("--code-commit", required=True)
     history.add_argument("--driver-memory", default="2g")
+
+    load = commands.add_parser("load-test", help="load-test the service in the kind cluster")
+    load.add_argument("--plan", type=Path, required=True)
+    load.add_argument("--output-dir", type=Path, required=True)
+    load.add_argument("--code-commit", required=True)
 
     export = commands.add_parser("export-serving", help="train and pack the model to serve")
     export.add_argument("--monthly-dir", type=Path, required=True)
@@ -264,6 +271,12 @@ def run_export_serving_command(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_load_test_command(args: argparse.Namespace) -> int:
+    summary = run_load_test(load_load_plan(args.plan), Path(), args.output_dir, args.code_commit)
+    print(json.dumps(summary["by_copies"], indent=2))
+    return 0
+
+
 def run_scaling_command(args: argparse.Namespace) -> int:
     summary = run_scaling(
         args.data_dir, load_scaling_plan(args.plan), args.output_dir, args.code_commit
@@ -311,6 +324,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         "history": run_history_command,
         "scaling": run_scaling_command,
         "export-serving": run_export_serving_command,
+        "load-test": run_load_test_command,
     }
     return commands[args.command](args)
 
