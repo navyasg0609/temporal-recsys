@@ -33,7 +33,8 @@ multi-node Spark, and performance numbers name the setup they came from.
 
 The catalog has about 17,770 items, so exact scoring is small enough that an
 approximate nearest neighbor index would add complexity without a clear benefit.
-Load testing in Phase 7 will confirm this.
+Load testing in Phase 7 will confirm this. It found a p95 of 6.3 ms at 50 users and the target
+met up to 400 users on a laptop. Whether an approximate index would raise that limit was not tested.
 
 ## 007: Use synthetic data in CI
 
@@ -255,3 +256,7 @@ result names that setup.
 Decision 039 assumed extra copies cannot add capacity on one machine. Each copy is one Python process
 that uses about one CPU, and the service has four, so a second copy may help until the CPUs are
 busy. The load test compares one and two copies instead of assuming either answer.
+
+Result: two copies reached 1.32 times one copy's peak requests a second, below the registered 1.5,
+and both missed the target first at 600 users. By the registered rule a second copy does not raise
+capacity on this laptop, so decision 039 stands (`docs/LAB_NOTEBOOK.md`, 2026-11-04).

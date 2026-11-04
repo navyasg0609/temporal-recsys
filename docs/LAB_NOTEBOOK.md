@@ -660,3 +660,88 @@ checks, not separate machines. No latency or load numbers are claimed here; Phas
 
 **What it changes:** the served model is the measured one, so Phase 7 can test a service whose
 quality is already known.
+
+## 2026-11-04: Load test pilot, before registering
+
+These are pilot runs of up to 20 users, used to fix the test and set the predictions. None of their
+numbers are claims.
+
+**Lockstep users:** with a fixed 1-second pause between requests, every virtual user fired at the
+same moment, so requests queued behind each other. The median latency at 10 users was about 30 ms.
+A random pause of 0.5 to 1.5 seconds spread them out, and the median fell to about 16 ms. The
+registered test uses the random pause.
+
+**Too many BLAS threads:** the service's own timing put the median request at about 17 ms. NumPy
+starts one maths thread per CPU it can see, and requests served at the same time fought over the
+CPUs. Limiting NumPy to one thread (`OPENBLAS_NUM_THREADS=1`) cut the median to about 3.6 ms and the
+p95 to about 6.8 ms. The image now sets this (`deploy/Dockerfile`), and with it the pilot gave a
+median of about 4.0 ms and a p95 of about 7.6 ms.
+
+**A mistake on the way:** the first edit to the Dockerfile was made by a script whose check failed
+without stopping it, so one image was rebuilt without the fix. Reading the file before rebuilding
+caught it.
+
+## 2026-11-04: How many users the service handles on one laptop
+
+**Expected:** see `experiments/registered/load-test.yaml`, version 1. One copy would miss the target
+(p95 at most 100 ms, errors at most 1%) between 200 and 600 users, because one request costs about
+3 ms of one CPU, so a copy would top out near 300 requests a second. Two copies would reach at least
+1.5 times one copy's peak requests a second and miss the target at a higher step.
+
+**Ran:** `trs load-test --plan experiments/registered/load-test.yaml` at commit `5504334`, against
+the real bundle, on a laptop (Intel Core i7-1355U, 2 performance and 8 efficiency cores, 12 threads,
+15.7 GB; Docker Desktop with 12 CPUs and 7.6 GiB). A three-node kind cluster ran on Docker CPUs 0 to
+7, and k6 2.3.0 on CPUs 8 to 11. Each of 9 steps from 50 to 2,000 users ran for 1 and 2 copies, 3
+passes each, with the order of copies shuffled every pass: 54 steps of 60 measured seconds, all
+saved in `experiments/results/load-test/`.
+
+**Median of 3 passes, range in brackets:**
+
+| Users | 1 copy: p95 ms | 1 copy: requests/s | 2 copies: p95 ms | 2 copies: requests/s |
+|---|---|---|---|---|
+| 50 | 6.3 (6.2 to 6.6) | 49.8 | 7.0 (6.6 to 7.9) | 50.1 |
+| 200 | 35.2 (7.8 to 320.2) | 197.7 | 12.4 (10.1 to 14.4) | 198.1 |
+| 400 | 72.4 (71.5 to 451.5) | 391.0 | 62.3 (12.8 to 241.5) | 391.5 |
+| 600 | 810.2 (651.4 to 844.7) | 464.8 | 224.0 (36.4 to 536.1) | 564.6 |
+| 1,000 | 1,088.5 (1,008.2 to 1,614.4) | 540.0 | 682.9 (591.3 to 1,421.0) | 710.5 |
+| 2,000 | 4,105.7 (4,104.5 to 5,000.9) | 374.2 | 5,000.8 (2,999.3 to 5,001.3) | 451.7 |
+
+Every step is in `summary.json`. Figure: `report/figures/load_test.png`, drawn by
+`report/figures/load_test.py` from the committed result files.
+
+**Prediction check:**
+
+- One copy misses the target between 200 and 600 users: held, at the edge. It met the target at 400
+  users and missed it at 600. The reason given was wrong: one copy reached 540.0 requests a second,
+  not about 300.
+- Two copies reach 1.5 times the peak: failed. Their peak was 710.5 requests a second, 1.32 times
+  one copy's.
+- Two copies miss the target at a higher step: failed. Both first missed it at 600 users.
+
+**What happened:** up to 400 users, the service answered almost every user's request each second,
+with a p95 of 6 to 72 ms. At 600 users it fell behind, and the p95 rose past 100 ms for both setups.
+Between 600 and 1,000 users, two copies answered up to 32% more requests a second and kept latency
+lower, but still several times over the target. Beyond 1,000 users both answered fewer requests a
+second, not more, and from 1,500 users more than 1% of requests failed, including timeouts at 5 s.
+No step below 1,500 users had a median error rate above zero, although one pass with one copy at
+1,000 users had 24.9% errors.
+
+**Why one copy beat the prediction, not tested:** the recommendation route is a plain function, so
+FastAPI runs it on a pool of threads, and NumPy can let other threads run while it computes. One
+Python process may therefore use more than one CPU, which would also explain why a second copy added
+less than expected.
+
+**Spread between passes:** the same step can differ a lot between passes. With one copy at 200
+users, one pass had a p95 of 320.2 ms while the others had 7.8 and 35.2 ms. The laptop's mix of fast
+and slow cores, and its power settings, likely cause this, but it was not tested. The failure point
+uses the median of three passes, so one slow pass does not move it.
+
+**Limits:** all three nodes and k6 share one laptop. Pinning sets which of Docker's virtual CPUs each
+part uses, but Windows decides which physical core runs them. All traffic enters through one
+worker's port. k6 users wait for each answer before asking again, so under overload they slow down
+instead of piling up, which hides some of the queueing real traffic would cause. This is not a
+production cluster, and the numbers describe this laptop only.
+
+**What it changes:** on this laptop the service meets its target up to 400 simultaneous users and
+fails at 600, with one copy or two. By the registered rule, a second copy does not raise capacity
+here, which supports decision 039's choice to skip autoscaling on one machine (decision 042).

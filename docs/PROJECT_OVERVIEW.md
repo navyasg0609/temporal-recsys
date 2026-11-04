@@ -196,7 +196,9 @@ We set a speed target first, then increase simulated users, going past 500, unti
 service slows down or fails. We record the number of users, requests per second,
 response time and errors.
 
-**Finished when:** we know the service's limit and have described the test setup.
+**Finished when:** we know the service's limit and have described the test setup. Done: on one
+laptop the service answers within 100 ms for up to 400 simultaneous users and slows past that at
+600. A second copy helped less than predicted and did not raise that limit.
 
 ### Phase 8: Publish (1 week)
 
