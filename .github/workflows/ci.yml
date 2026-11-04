@@ -26,6 +26,21 @@ jobs:
       # The command the README gives a new reader, run exactly as written.
       - run: uv run trs reproduce --sample
 
+  # Build the report, so a LaTeX error fails the pull request. The committed report/main.pdf
+  # is the PDF this job uploads.
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: xu-cheng/latex-action@v4
+        with:
+          root_file: main.tex
+          working_directory: report
+      - uses: actions/upload-artifact@v4
+        with:
+          name: report
+          path: report/main.pdf
+
   # Deploy to a three-node kind cluster with a synthetic bundle, then check the planted
   # answers from a pod inside the cluster. No rating data is involved.
   cluster:

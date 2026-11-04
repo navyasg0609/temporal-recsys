@@ -275,3 +275,10 @@ A test finds every decimal number in `README.md` and `report/*.tex` and fails if
 from `docs/CLAIMS.md`, so a typo or an unrecorded result cannot be published. Whole numbers are not
 checked, because years, counts and settings would need a long list of exceptions, so those still
 need care by hand. Decimals that are settings or versions are listed in the test with a reason.
+
+## 045: Write the report in LaTeX, built in CI, with the PDF committed
+
+The report is `report/main.tex`, and a CI job compiles it on every pull request, so a LaTeX error
+cannot reach `main`. The PDF that job builds is committed, so a reader can open it on GitHub in one
+click. A citation file and a Zenodo DOI were dropped as unnecessary, and so was the one-minute demo
+video: the README's single command shows the method working, which a video would only repeat.
