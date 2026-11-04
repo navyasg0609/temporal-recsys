@@ -1,6 +1,6 @@
 # Roadmap
 
-**Status:** Phases 0, 1, 2, 3, 3b and 4 complete. Phase 5 is next.
+**Status:** Phases 0, 1, 2, 3, 3b, 4 and 5 complete. Phase 6 is next.
 
 Update this file when a phase finishes. A phase is done only when its exit
 criteria have been demonstrated with real output.
@@ -86,6 +86,9 @@ every number recorded in `docs/CLAIMS.md`.
 
 - Measure speedup at 1, 2 and 4 cores.
 - Compare with single-machine ALS, in the spirit of McSherry et al.'s COST metric.
+- Result: Spark ALS ran 1.83 times faster on 2 cores and 2.05 times on 4 threads, which share
+  2 physical cores. It beat single-threaded NumPy ALS only on all 4 threads, so its COST is 4
+  (`docs/LAB_NOTEBOOK.md`, 2026-11-04).
 
 **Exit:** speedup chart, with an honest statement of where Spark helps and where it
 does not.

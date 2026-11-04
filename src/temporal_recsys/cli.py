@@ -25,6 +25,8 @@ from temporal_recsys.experiments.history import (
     two_tower_trainer,
 )
 from temporal_recsys.experiments.history import load_plan as load_history_plan
+from temporal_recsys.experiments.scaling import load_plan as load_scaling_plan
+from temporal_recsys.experiments.scaling import run_scaling
 from temporal_recsys.experiments.spark_als import load_plan as load_spark_als_plan
 from temporal_recsys.experiments.spark_als import run_spark_als
 from temporal_recsys.experiments.training_latency import load_plan as load_latency_plan
@@ -96,6 +98,12 @@ def build_parser() -> argparse.ArgumentParser:
     history.add_argument("--output-dir", type=Path, required=True)
     history.add_argument("--code-commit", required=True)
     history.add_argument("--driver-memory", default="2g")
+
+    scaling = commands.add_parser("scaling", help="time Spark ALS on each core count")
+    scaling.add_argument("--data-dir", type=Path, required=True)
+    scaling.add_argument("--plan", type=Path, required=True)
+    scaling.add_argument("--output-dir", type=Path, required=True)
+    scaling.add_argument("--code-commit", required=True)
     return parser
 
 
@@ -230,6 +238,14 @@ def run_history_command(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_scaling_command(args: argparse.Namespace) -> int:
+    summary = run_scaling(
+        args.data_dir, load_scaling_plan(args.plan), args.output_dir, args.code_commit
+    )
+    print(json.dumps(summary, indent=2))
+    return 0
+
+
 def run_synthetic(args: argparse.Namespace) -> int:
     args.output_dir.mkdir(parents=True, exist_ok=True)
     data = generate_ratings(SyntheticConfig(seed=args.seed))
@@ -267,6 +283,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         "two-tower": run_two_tower_command,
         "two-tower-diagnostic": run_two_tower_diagnostic_command,
         "history": run_history_command,
+        "scaling": run_scaling_command,
     }
     return commands[args.command](args)
 

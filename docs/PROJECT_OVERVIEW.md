@@ -48,6 +48,9 @@ The answer depends on the model. On Netflix ratings, tested on August to October
   for a 2% gain.
 - **History beyond a year helped no model,** while training time kept growing.
 - **The neural model scored highest** at every history length and in every test month.
+- **Spark does not pay for itself on one machine.** On one core, Spark ALS took 1.88 times as
+  long as a plain single-threaded program doing the same job. It only beat that program when
+  given all 4 threads of the machine, and then by 7.9%.
 
 The numbers, the chart and their limits are in the [lab notebook](LAB_NOTEBOOK.md),
 and each number has a row in [CLAIMS.md](CLAIMS.md).
@@ -173,7 +176,9 @@ or film and a second dataset were left out (decision 032).
 We test how much faster the job gets when given more computing power, and compare that
 with a single-machine method. Spark may not win, and that would be a useful result.
 
-**Finished when:** we have a chart and an honest statement of where Spark helps.
+**Finished when:** we have a chart and an honest statement of where Spark helps. Done:
+Spark needed the whole 4-thread machine to beat one thread of plain NumPy, so on one machine
+its value is the code it shares with a cluster, not speed.
 
 ### Phase 6: Serve recommendations (1 week)
 
