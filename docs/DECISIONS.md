@@ -214,3 +214,9 @@ Kaggle runs now install the package with `pip install ./repo[spark]`.
 A service that ranks films differently from the evaluation would serve lists nobody measured. Both
 call `rank_unseen`, which removes films the user already rated and keeps the top k, and a test
 checks that the service returns the same lists as the evaluation for the same model.
+
+## 037: Serve the two-tower model on 6 months before October 2005, seed 1
+
+It is one arm the main experiment scored, so the served model's quality is measured, and the export
+retrains it with the same plan and checks the score. Six months is the history this model needed in
+Phase 4. `configs/serving.yaml` names the arm, and the export refuses any arm the plan did not score.

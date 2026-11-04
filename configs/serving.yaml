@@ -1,0 +1,11 @@
+# The model to serve: one arm the main experiment already scored, so its quality is
+# known. Six months is the history the two-tower model needed (decision 037).
+history_plan: experiments/registered/history-windows.yaml
+cutoff: "2005-10-01"
+window_months: 6
+seed: 1
+
+# Users whose served lists are compared with the lists the evaluation ranks.
+serving_check:
+  users: 5000
+  seed: 2026
