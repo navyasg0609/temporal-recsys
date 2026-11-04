@@ -189,3 +189,16 @@ points only because of who was left out. The serving plan in Phase 6 uses the sa
 
 The main result is clear without them, and the roadmap's cut order lists both before the core
 phases. They stay possible future work and are named as limits in the results.
+
+## 033: Measure scaling with threads on one machine
+
+Spark in local mode with 1, 2 and 4 threads shows how Spark uses cores, not how it behaves across a
+network. Kaggle offers one machine, and the 4 CPUs are 2 physical cores with 2 threads each. Every
+scaling number names this setup, and none is described as distributed.
+
+## 034: Use single-threaded NumPy ALS as the COST baseline
+
+COST asks how many cores Spark needs to beat a single-threaded program doing the same job. The NumPy
+ALS already exists, is tested, and matches Spark's quality (decision 023), so it is the baseline. It
+is a plain Python loop, and an optimized library would make Spark's COST higher. That is stated as a
+limit rather than adding a new dependency.

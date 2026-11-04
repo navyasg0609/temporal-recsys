@@ -569,3 +569,61 @@ cannot separate.
 **What it changes:** the answer to the main question depends on the model. A recent window is
 enough, and better, for popularity and ALS. The two-tower model needs about 6 months, and history
 beyond 12 months buys nothing for any model while training time keeps growing with rows.
+
+## 2026-11-04: How Spark ALS scales with cores, and its COST
+
+**Expected:** see `experiments/registered/scaling.yaml`. Speedup would be below linear: 1.5 to 2.0
+times on 2 cores and less than 3.0 times on 4. Spark on 1 core would be slower than single-threaded
+NumPy ALS, Spark on 2 cores would not clearly beat it, and COST would be 4.
+
+**Ran:** `trs scaling` at commit `1ee6fdd` on a Kaggle CPU notebook, 31.3 GB, Spark local mode. The
+12 months before August 2005, 46,691,107 ratings. Each of the 16 measurements ran in a fresh
+process: 1 warm-up pass, then 3 timed passes in shuffled order. Every arm read the same rows, and the
+summary rebuilt from `measurements.jsonl` matches the one printed on Kaggle.
+
+**Hardware, from `lscpu`:** AMD EPYC 7B12, 4 CPUs, made of 2 physical cores with 2 threads each.
+So the step from 2 to 4 cores adds threads that share a physical core, not new cores.
+
+**Whole-job seconds (read, fit, copy factors), median and range of 3 timed runs:**
+
+| Arm | Seconds | Speedup over Spark on 1 core |
+|---|---|---|
+| NumPy ALS, 1 thread | 351.4 (350.8 to 358.1) | |
+| Spark ALS, 1 core | 662.0 (646.9 to 716.5) | 1.00 |
+| Spark ALS, 2 cores | 362.5 (359.8 to 365.2) | 1.83 |
+| Spark ALS, 4 cores | 323.6 (302.0 to 327.2) | 2.05 |
+
+Figure: `report/figures/scaling.png`, drawn by `report/figures/scaling.py` from the committed
+result files.
+
+**Prediction check:** all five predictions held.
+
+- 2 cores give 1.5 to 2.0 times: confirmed, 1.83 times.
+- 4 cores give less than 3.0 times: confirmed, 2.05 times.
+- Spark on 1 core is slower than NumPy: confirmed, 1.88 times as long.
+- Spark on 2 cores does not clearly beat NumPy: confirmed. It was 3.2% slower, and its fastest run
+  (359.8 s) was slower than NumPy's slowest (358.1 s).
+- COST is 4: confirmed. On 4 threads Spark's slowest run (327.2 s) beat NumPy's fastest (350.8 s),
+  and its median was 7.9% lower.
+
+**What happened:** Spark scaled well across the 2 physical cores, reaching 1.83 of a possible 2.
+The 2 extra threads on the same cores added only 1.12 times more. Spark's overhead is large: on 1
+core it took 1.88 times as long as a plain single-threaded program doing the same job. It needed
+every thread this machine has to win, and then it won by 7.9%.
+
+**An observation, not tested:** held to one thread, NumPy ALS fit in a median of 350.0 s. In
+`baseline-table-v2`, the same settings on the same 46,691,107 rows, with no thread limit, fit in
+454.9 and 465.3 s on the same kind of notebook. Extra BLAS threads may slow the many tiny matrix
+products. If so, the Phase 3 finding that Spark fit 23.7% faster than NumPy (decision 023) partly
+reflects that slowdown. The runs came from different sessions and were not interleaved, so this is
+not a controlled comparison. Decision 023 stands on its quality result.
+
+**Limits:** one window, one cutoff and one machine. Spark in local mode runs threads in one process,
+so this says nothing about a cluster, where network transfer adds cost. NumPy ALS is a plain Python
+loop, and an optimized single-threaded program would raise COST. Each engine used its own tuned
+settings. Starting a process and a Spark session was not timed.
+
+**What it changes:** on this machine, Spark is not worth its overhead for this job. Its single-core
+cost is almost twice a simple program's, and it only pulls ahead when given all 4 threads. The
+reason to keep it is the code it shares with a real cluster, not speed on one machine
+(decisions 033 and 034).
