@@ -674,7 +674,6 @@ source = { editable = "." }
 dependencies = [
     { name = "numpy" },
     { name = "pyarrow" },
-    { name = "pyspark" },
     { name = "pyyaml" },
     { name = "scipy" },
     { name = "threadpoolctl" },
@@ -685,6 +684,9 @@ neural = [
     { name = "torch", version = "2.11.0", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "sys_platform == 'darwin'" },
     { name = "torch", version = "2.11.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "sys_platform != 'darwin'" },
 ]
+spark = [
+    { name = "pyspark" },
+]
 
 [package.dev-dependencies]
 dev = [
@@ -694,7 +696,7 @@ dev = [
     { name = "pre-commit" },
     { name = "pytest" },
     { name = "ruff" },
-    { name = "temporal-recsys", extra = ["neural"] },
+    { name = "temporal-recsys", extra = ["neural", "spark"] },
     { name = "types-pyyaml" },
 ]
 
@@ -702,13 +704,13 @@ dev = [
 requires-dist = [
     { name = "numpy", specifier = ">=2" },
     { name = "pyarrow", specifier = ">=17" },
-    { name = "pyspark", specifier = "==4.0.4" },
+    { name = "pyspark", marker = "extra == 'spark'", specifier = "==4.0.4" },
     { name = "pyyaml", specifier = ">=6.0.3" },
     { name = "scipy", specifier = ">=1.14" },
     { name = "threadpoolctl", specifier = ">=3.7.0" },
     { name = "torch", marker = "extra == 'neural'", specifier = "==2.11.0", index = "https://download.pytorch.org/whl/cpu" },
 ]
-provides-extras = ["neural"]
+provides-extras = ["neural", "spark"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -718,7 +720,7 @@ dev = [
     { name = "pre-commit", specifier = ">=3.7" },
     { name = "pytest", specifier = ">=8" },
     { name = "ruff", specifier = ">=0.5" },
-    { name = "temporal-recsys", extras = ["neural"], editable = "." },
+    { name = "temporal-recsys", extras = ["neural", "spark"], editable = "." },
     { name = "types-pyyaml", specifier = ">=6.0.12.20261030" },
 ]
 

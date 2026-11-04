@@ -10,7 +10,6 @@ requires-python = ">=3.13,<3.14"
 dependencies = [
     "numpy>=2",
     "pyarrow>=17",
-    "pyspark==4.0.4",
     "pyyaml>=6.0.3",
     "scipy>=1.14",
     "threadpoolctl>=3.7.0",
@@ -19,13 +18,15 @@ dependencies = [
 [project.optional-dependencies]
 # Optional so that installing this package on Kaggle keeps Kaggle's own GPU build.
 neural = ["torch==2.11.0"]
+# Optional so that the serving image does not carry Spark, which it never uses.
+spark = ["pyspark==4.0.4"]
 
 [project.scripts]
 trs = "temporal_recsys.cli:main"
 
 [dependency-groups]
 dev = [
-    "temporal-recsys[neural]",
+    "temporal-recsys[neural,spark]",
     "hypothesis>=6",
     "mypy>=1.10",
     "pre-commit>=3.7",

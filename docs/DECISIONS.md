@@ -202,3 +202,9 @@ COST asks how many cores Spark needs to beat a single-threaded program doing the
 ALS already exists, is tested, and matches Spark's quality (decision 023), so it is the baseline. It
 is a plain Python loop, and an optimized library would make Spark's COST higher. That is stated as a
 limit rather than adding a new dependency.
+
+## 035: Make Spark an optional extra
+
+The serving image needs only NumPy and the web framework, and Spark would add hundreds of megabytes
+it never uses. Spark becomes the `spark` extra, as PyTorch became the `neural` extra (decision 027).
+Kaggle runs now install the package with `pip install ./repo[spark]`.
