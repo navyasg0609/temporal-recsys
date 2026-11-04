@@ -268,3 +268,10 @@ so it trains popularity and single-machine ALS only, on data written without Spa
 pick films at random and only their stars follow their tastes, so it uses ALS that predicts stars:
 preference ALS, used in the main experiment, would find nothing. It checks a planted answer rather
 than reproducing a finding, and CI runs it as the README gives it.
+
+## 044: Check published decimals against the claims ledger
+
+A test finds every decimal number in `README.md` and `report/*.tex` and fails if one is missing
+from `docs/CLAIMS.md`, so a typo or an unrecorded result cannot be published. Whole numbers are not
+checked, because years, counts and settings would need a long list of exceptions, so those still
+need care by hand. Decimals that are settings or versions are listed in the test with a reason.
