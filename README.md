@@ -55,11 +55,12 @@ uv sync
 uv run trs reproduce --sample
 ```
 
-The first `uv sync` downloads the dependencies, including PyTorch and Spark, which takes a few
-minutes. The run itself takes under a minute. It runs the method end to end on generated ratings
-whose tastes change at a known month, and checks that the planted change is found. The full-data runs need the Netflix Prize files, which
-are not redistributed here, and ran on free Kaggle notebooks: see
-[docs/REPRODUCING.md](docs/REPRODUCING.md).
+The first `uv sync` downloads the dependencies, including PyTorch and Spark, so it takes longer
+than the run, which takes under a minute. The command runs the method end to end on generated
+ratings whose tastes change at a known month, and checks that the planted change is found.
+
+The full-data runs need the Netflix Prize files, which are not redistributed here, and ran on
+free Kaggle notebooks: see [docs/REPRODUCING.md](docs/REPRODUCING.md).
 
 ## How it works
 
