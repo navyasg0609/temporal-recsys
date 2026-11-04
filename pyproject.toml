@@ -78,7 +78,7 @@ ignore = ["N812"]
 [tool.mypy]
 python_version = "3.13"
 strict = true
-files = ["src", "tests"]
+files = ["src", "tests", "deploy"]
 
 [[tool.mypy.overrides]]
 module = ["pyarrow", "pyarrow.*", "scipy", "scipy.*", "threadpoolctl"]

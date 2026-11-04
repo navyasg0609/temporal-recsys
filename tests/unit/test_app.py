@@ -86,10 +86,10 @@ def test_request_logs_are_json_without_user_ids(client: TestClient) -> None:
     assert "12345" not in json.dumps(lines)
 
 
-def test_serving_never_imports_spark_or_pytorch() -> None:
+def test_serving_imports_only_what_the_image_installs() -> None:
     code = (
         "import sys, temporal_recsys.serving.app; "
-        "print(sorted({'pyspark', 'torch', 'pyarrow'} & set(sys.modules)))"
+        "print(sorted({'pyspark', 'torch', 'pyarrow', 'scipy'} & set(sys.modules)))"
     )
     result = subprocess.run(  # noqa: S603
         [sys.executable, "-c", code], capture_output=True, text=True, check=True

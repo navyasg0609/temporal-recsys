@@ -220,3 +220,11 @@ checks that the service returns the same lists as the evaluation for the same mo
 It is one arm the main experiment scored, so the served model's quality is measured, and the export
 retrains it with the same plan and checks the score. Six months is the history this model needed in
 Phase 4. `configs/serving.yaml` names the arm, and the export refuses any arm the plan did not score.
+
+## 038: Keep rating data out of the image, the repository and the logs
+
+The bundle holds user IDs and the films each user rated, which is close to the dataset itself, so it
+must not be redistributed. It stays in the git-ignored `artifacts/` folder and is mounted read-only
+when the service runs. The image holds code only, and leaves out pyarrow and scipy, which the
+service never imports. Logs record the route template, never a user ID, and responses give film IDs
+without titles.

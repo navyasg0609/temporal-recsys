@@ -1,0 +1,8 @@
+# Send only what the image needs. Data and bundles must never reach the build.
+*
+!pyproject.toml
+!uv.lock
+!README.md
+!LICENSE
+!src/
+**/__pycache__
