@@ -627,3 +627,36 @@ settings. Starting a process and a Spark session was not timed.
 cost is almost twice a simple program's, and it only pulls ahead when given all 4 threads. The
 reason to keep it is the code it shares with a real cluster, not speed on one machine
 (decisions 033 and 034).
+
+## 2026-11-04: Serving the scored two-tower model
+
+**Expected:** the export retrains the arm the main experiment scored, the two-tower model on the 6
+months before October 2005 with seed 1 (decision 037), and lands within its standard error of the
+Phase 4 score. Every served list matches the list the evaluation ranks.
+
+**Ran:** `trs export-serving --config configs/serving.yaml` at commit `aa6d52b` on a Kaggle GPU
+notebook (one Tesla T4, 4 cores, 31.3 GB). The manifest is in `experiments/results/serving-export/`.
+The bundle itself holds rating data, so it is not committed (decision 038).
+
+**What happened:** the retrained arm scored NDCG@10 0.0993, against 0.0994 in Phase 4, a difference
+of 0.00004 with a standard error of 0.0008. It trained on the same 28,970,031 rows in 228.2 seconds,
+against 232.6. For 5,000 sampled users, the service's top 10 equalled the evaluation's top 10 every
+time. The bundle covers 377,916 users with model vectors and 444,323 with any rating before the
+cutoff, and is 566,831,262 bytes.
+
+**Deployment:** on a laptop (Intel Core i7-1355U, 10 cores and 12 threads, 15.7 GB; Docker Desktop
+with 12 CPUs and 7.6 GiB), `deploy/cluster.sh` built the 299 MB image, created a three-node kind
+cluster, and placed one copy of the service on each worker. A pod inside the cluster got model
+recommendations for a user from the window and popular films for an unknown user. Each copy held
+590 MiB of memory with the real bundle. CI runs the same deployment with a synthetic bundle and
+checks two planted answers on every pull request.
+
+**Dead ends:** the first CI runs failed twice. Scripts committed from Windows lacked the executable
+bit. Then the rule spreading copies across nodes also counted the control-plane node, which takes no
+pods, so a rolling restart could not place its extra copy. Honouring node taints fixed it.
+
+**Limits:** the kind nodes are containers on one laptop, so the cluster tests scheduling and health
+checks, not separate machines. No latency or load numbers are claimed here; Phase 7 measures them.
+
+**What it changes:** the served model is the measured one, so Phase 7 can test a service whose
+quality is already known.
