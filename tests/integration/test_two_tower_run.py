@@ -3,8 +3,8 @@ from datetime import date
 from pathlib import Path
 
 import pytest
-from monthly_data import write_monthly
 
+from temporal_recsys.data.arrays import write_monthly
 from temporal_recsys.data.synthetic import SyntheticConfig, generate_ratings
 from temporal_recsys.evaluation.harness import EvaluationConfig
 from temporal_recsys.experiments.baseline import ARMS_FILE

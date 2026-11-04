@@ -8,6 +8,7 @@ from pathlib import Path
 import numpy as np
 import pyarrow as pa
 import pyarrow.dataset as ds
+import pyarrow.parquet as pq
 from numpy.typing import NDArray
 
 from temporal_recsys.data.parser import Rating
@@ -63,3 +64,28 @@ def load_ratings(monthly_dir: Path, first_day: date, end_day: date) -> RatingArr
         table["stars"].to_numpy(),
         table["rated_on"].to_numpy().astype("datetime64[D]"),
     )
+
+
+def write_monthly(ratings: Sequence[Rating], monthly_dir: Path) -> None:
+    """Write ratings in the same one-folder-per-month layout as Spark, without Spark.
+
+    Used for synthetic data, so the method can run on a machine where Spark does not.
+    Existing month folders raise rather than being overwritten.
+    """
+    by_month: dict[str, list[Rating]] = {}
+    for rating in ratings:
+        by_month.setdefault(rating.rated_on.strftime("%Y-%m"), []).append(rating)
+
+    for month, rows in by_month.items():
+        folder = monthly_dir / f"{MONTH_COLUMN}={month}"
+        folder.mkdir(parents=True)
+        film_ids, user_ids, stars, days = zip(*rows, strict=True)
+        table = pa.table(
+            {
+                "film_id": pa.array(film_ids, pa.int32()),
+                "user_id": pa.array(user_ids, pa.int32()),
+                "stars": pa.array(stars, pa.int8()),
+                "rated_on": pa.array(days, pa.date32()),
+            }
+        )
+        pq.write_table(table, folder / "part-0.parquet")

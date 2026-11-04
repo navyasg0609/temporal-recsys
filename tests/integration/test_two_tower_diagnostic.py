@@ -3,9 +3,8 @@ from datetime import date
 from pathlib import Path
 
 import numpy as np
-from monthly_data import write_monthly
 
-from temporal_recsys.data.arrays import from_ratings
+from temporal_recsys.data.arrays import from_ratings, write_monthly
 from temporal_recsys.data.parser import Rating
 from temporal_recsys.data.synthetic import SyntheticConfig, generate_ratings
 from temporal_recsys.evaluation.harness import EvaluationConfig

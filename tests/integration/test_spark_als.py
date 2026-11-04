@@ -3,10 +3,9 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from monthly_data import write_monthly
 from pyspark.sql import SparkSession
 
-from temporal_recsys.data.arrays import load_ratings
+from temporal_recsys.data.arrays import load_ratings, write_monthly
 from temporal_recsys.data.parser import Rating
 from temporal_recsys.data.pipeline import MONTHLY_DIR
 from temporal_recsys.evaluation.harness import EvaluationConfig, evaluate
