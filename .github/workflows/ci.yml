@@ -23,3 +23,22 @@ jobs:
       - run: uv run ruff format --check .
       - run: uv run mypy
       - run: uv run pytest
+
+  # Deploy to a three-node kind cluster with a synthetic bundle, then check the planted
+  # answers from a pod inside the cluster. No rating data is involved.
+  cluster:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: mkdir -p artifacts && uv run --locked --no-dev python deploy/synthetic_bundle.py artifacts
+      - uses: helm/kind-action@v1
+        with:
+          install_only: true
+      - run: deploy/cluster.sh
+      - run: deploy/smoke.sh 1 7
+      - run: deploy/smoke.sh 999 5
+      - if: failure()
+        run: |
+          kubectl describe pods -l app=recsys
+          kubectl logs -l app=recsys --tail=50

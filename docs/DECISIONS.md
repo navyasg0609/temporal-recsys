@@ -228,3 +228,10 @@ must not be redistributed. It stays in the git-ignored `artifacts/` folder and i
 when the service runs. The image holds code only, and leaves out pyarrow and scipy, which the
 service never imports. Logs record the route template, never a user ID, and responses give film IDs
 without titles.
+
+## 039: Run a fixed two copies, without autoscaling
+
+The roadmap's cut order lists autoscaling first. On one machine every copy of the service shares the
+same CPUs, so adding copies under load cannot add capacity, and an autoscaling demo would show the
+mechanism without a benefit. The cluster runs two copies, one per worker node, and the kind nodes are
+containers on one machine, which every result states.

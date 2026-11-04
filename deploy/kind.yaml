@@ -1,0 +1,17 @@
+# Three nodes, all containers on one machine. This tests scheduling across nodes, not a
+# real cluster: every node shares the same CPUs and memory.
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: recsys
+nodes:
+  - role: control-plane
+  - role: worker
+    extraMounts:
+      - hostPath: ./artifacts
+        containerPath: /artifacts
+        readOnly: true
+  - role: worker
+    extraMounts:
+      - hostPath: ./artifacts
+        containerPath: /artifacts
+        readOnly: true
