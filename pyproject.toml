@@ -20,13 +20,18 @@ dependencies = [
 neural = ["torch==2.11.0"]
 # Optional so that the serving image does not carry Spark, which it never uses.
 spark = ["pyspark==4.0.4"]
+serve = [
+    "fastapi>=0.162.0",
+    "prometheus-client>=0.26.0",
+    "uvicorn>=0.54.0",
+]
 
 [project.scripts]
 trs = "temporal_recsys.cli:main"
 
 [dependency-groups]
 dev = [
-    "temporal-recsys[neural,spark]",
+    "temporal-recsys[neural,serve,spark]",
     "hypothesis>=6",
     "mypy>=1.10",
     "pre-commit>=3.7",
@@ -34,6 +39,7 @@ dev = [
     "ruff>=0.5",
     "types-pyyaml>=6.0.12.20261030",
     "matplotlib>=3.11.2",
+    "httpx>=0.28.1",
 ]
 
 [[tool.uv.index]]
