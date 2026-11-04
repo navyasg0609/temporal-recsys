@@ -84,8 +84,11 @@ kind: Service
 metadata:
   name: recsys
 spec:
+  # A fixed node port lets the load tool, which runs beside the cluster, reach the service.
+  type: NodePort
   selector:
     app: recsys
   ports:
     - port: 80
       targetPort: 8000
+      nodePort: 30080
