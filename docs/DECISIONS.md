@@ -235,3 +235,23 @@ The roadmap's cut order lists autoscaling first. On one machine every copy of th
 same CPUs, so adding copies under load cannot add capacity, and an autoscaling demo would show the
 mechanism without a benefit. The cluster runs two copies, one per worker node, and the kind nodes are
 containers on one machine, which every result states.
+
+## 040: Set the latency target before load testing
+
+The service must answer within 100 ms at the 95th percentile, with at most 1% errors, because a
+recommendation list should arrive with the page. The failure point is the fewest simultaneous users
+at which the median over three passes misses either limit. Both are frozen in
+`experiments/registered/load-test.yaml` before any measured run.
+
+## 041: Keep the load generator off the service's CPUs
+
+The service's nodes are pinned to Docker CPUs 0 to 3, the control node to 4 to 7, and k6 to 8 to 11,
+so generating load does not take CPU from the service. These are Docker's virtual CPUs: Windows
+still schedules them onto physical cores, and this laptop mixes fast and slow cores, so every load
+result names that setup.
+
+## 042: Test whether a second copy adds capacity
+
+Decision 039 assumed extra copies cannot add capacity on one machine. Each copy is one Python process
+that uses about one CPU, and the service has four, so a second copy may help until the CPUs are
+busy. The load test compares one and two copies instead of assuming either answer.

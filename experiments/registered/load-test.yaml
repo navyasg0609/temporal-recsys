@@ -1,0 +1,77 @@
+id: load-test
+version: 1
+registered_on: "2026-11-04"
+supersedes: null
+change_reason: null
+
+question: >-
+  How many simultaneous users can the recommendation service serve within its latency target
+  on one machine, and does a second copy of the service raise that number?
+prediction: >-
+  One copy misses the target between 200 and 600 users, because one request costs about 3 ms of
+  one CPU, so a copy tops out near 300 requests a second. Two copies reach at least 1.5 times the
+  peak requests a second of one copy and miss the target at a higher step, because each copy is
+  one Python process that uses about one CPU and the service has four. This tests decision 039,
+  which assumed extra copies add no capacity on one machine. The predictions were set after a
+  pilot of up to 20 users, recorded in docs/LAB_NOTEBOOK.md.
+
+target:
+  p95_ms: 100
+  max_error_rate: 0.01
+  reason: >-
+    A recommendation list should arrive with the page, and 100 ms is the usual limit for a
+    response to feel immediate. An error is any status other than 200 or a timeout at 5 s.
+
+data:
+  dataset: Netflix Prize, served through the bundle in experiments/results/serving-export
+  requests: >-
+    10,000 user IDs: 9,000 drawn from users with any rating before the cutoff, and 1,000 IDs no
+    user has, written by deploy/load/sample_users.py with seed 2026. Each request asks for k=10.
+
+design:
+  baseline: one copy of the service
+  treatments:
+    - two copies of the service
+  copies: [1, 2]
+  user_steps: [50, 100, 200, 400, 600, 800, 1000, 1500, 2000]
+  repetitions: 3
+  order_seed: 2026
+  measured_seconds: 60
+  k6_image: grafana/k6:2.3.0
+  user_behaviour: >-
+    Each virtual user requests one list, then waits a random 0.5 to 1.5 seconds. The first 10
+    seconds of each step warm up and are not measured.
+  cpus:
+    service_nodes: "0-3"
+    control_node: "4-7"
+    load_generator: "8-11"
+
+measurement:
+  primary_metric: p95 latency and error rate at each step, and the failure point
+  secondary_metrics:
+    - requests per second over the measured 60 seconds
+    - p50 and p99 latency
+  what_is_timed: >-
+    Each request from k6 to the service's node port and back, as k6 measures it, including the
+    cluster's network.
+  hardware: >-
+    Laptop, Intel Core i7-1355U with 2 performance and 8 efficiency cores, 12 threads, 15.7 GB.
+    Docker Desktop with 12 CPUs and 7.6 GiB. A kind cluster of three nodes on that machine.
+  repetitions: 3
+
+analysis:
+  uncertainty_method: Median and range across the three passes at each step.
+  exclusions: The 10-second warm-up of each step.
+  what_would_change_the_conclusion: >-
+    A step meets the target if its median p95 is at most 100 ms and its median error rate at
+    most 1%. The failure point is the fewest users at which a step does not. If no step fails,
+    report that the failure point was not reached. Two copies raise capacity only if their peak
+    requests a second is at least 1.5 times one copy's and their failure point is higher.
+  known_limitations: >-
+    The three nodes and the load generator share one laptop. Pinning sets which of Docker's
+    virtual CPUs each part may use, but Windows still decides which physical core runs each one,
+    and this processor mixes fast and slow cores. Laptop power and heat settings can change
+    speed. All traffic enters through one worker node's port, so some requests cross to the
+    other node. k6 waits for each answer before the user's next request, so under overload
+    users slow down instead of piling up, which understates queueing compared with real
+    arrivals.

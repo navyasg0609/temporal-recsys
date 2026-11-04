@@ -1,8 +1,9 @@
+from pathlib import Path
 from typing import Any
 
 import pytest
 
-from temporal_recsys.experiments.load_test import step_measurement, summarize_load
+from temporal_recsys.experiments.load_test import load_plan, step_measurement, summarize_load
 
 TARGET_MS = 100.0
 MAX_ERRORS = 0.01
@@ -77,3 +78,12 @@ def test_no_failure_point_when_every_step_meets_the_target() -> None:
     assert one["highest_step_meeting_target"] == 200
     assert one["peak_requests_per_second"] == 200.0
     assert two["copies"] == 2
+
+
+def test_registered_plan_loads() -> None:
+    plan = load_plan(Path("experiments/registered/load-test.yaml"))
+
+    assert plan.copies == (1, 2)
+    assert plan.user_steps[-1] == 2000
+    assert plan.p95_target_ms == 100
+    assert plan.load_cpus == "8-11"
