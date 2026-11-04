@@ -46,15 +46,18 @@ the ones that held.
 
 ## Reproduce
 
-On any laptop, in under a minute, with synthetic data:
+On any laptop with [uv](https://docs.astral.sh/uv/) installed, using synthetic data:
 
 ```
+git clone https://github.com/navyasg0609/temporal-recsys.git
+cd temporal-recsys
 uv sync
 uv run trs reproduce --sample
 ```
 
-It runs the method end to end on generated ratings whose tastes change at a known month, and
-checks that the planted change is found. The full-data runs need the Netflix Prize files, which
+The first `uv sync` downloads the dependencies, including PyTorch and Spark, which takes a few
+minutes. The run itself takes under a minute. It runs the method end to end on generated ratings
+whose tastes change at a known month, and checks that the planted change is found. The full-data runs need the Netflix Prize files, which
 are not redistributed here, and ran on free Kaggle notebooks: see
 [docs/REPRODUCING.md](docs/REPRODUCING.md).
 

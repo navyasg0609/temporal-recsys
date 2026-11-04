@@ -1,6 +1,7 @@
 # Roadmap
 
-**Status:** Phases 0, 1, 2, 3, 3b, 4, 5, 6 and 7 complete. Phase 8 is next.
+**Status:** Phases 0, 1, 2, 3, 3b, 4, 5, 6 and 7 complete. Phase 8 is written and waits for
+someone outside the project to follow the README.
 
 Update this file when a phase finishes. A phase is done only when its exit
 criteria have been demonstrated with real output.
@@ -126,10 +127,15 @@ integration tests.
   reproduction and a short architecture diagram.
 - Make the first screen of the README stand alone: the question, the finding and the
   headline figure, readable in under a minute.
-- Add a model card, `CITATION.cff`, a tagged release and a Zenodo DOI.
+- Add a model card and a tagged release. `CITATION.cff` and a Zenodo DOI were dropped
+  (decision 045).
 - Set the repository description and topics, and add a CI status badge.
-- Record a demo of about one minute and link it from the README.
+- The one-minute demo was dropped: the README's one command shows the method working
+  (decision 045).
 - Have someone outside the project follow the README from a clean clone.
+- Result: an 8-page report built in CI, a README that leads with the finding, and
+  `trs reproduce --sample`, which CI runs as the README gives it. A clean clone ran it on a
+  laptop (`docs/LAB_NOTEBOOK.md`, 2026-11-04). The outside run is still to do.
 
 **Exit:** a stranger reproduces the synthetic run from the README alone.
 

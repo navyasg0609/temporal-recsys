@@ -202,11 +202,14 @@ laptop the service answers within 100 ms for up to 400 simultaneous users and sl
 
 ### Phase 8: Publish (1 week)
 
-We write a short research report, a clear README and a demo, and release the code so
-others can repeat the work. Someone outside the project then tries to follow the
-instructions from scratch.
+We write a short research report and a clear README, and release the code so others can
+repeat the work. Someone outside the project then tries to follow the instructions from
+scratch.
 
-**Finished when:** a new person can reproduce the synthetic run using only the README.
+**Finished when:** a new person can reproduce the synthetic run using only the README. So
+far: the report, README and model card are written, and one command runs the method on
+synthetic data and checks a planted answer. The demo video was dropped, because that command
+already shows the method working. The test by someone outside the project is still to do.
 
 ## Where the heavy computing will run
 

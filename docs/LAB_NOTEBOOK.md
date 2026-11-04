@@ -765,3 +765,18 @@ were fixed after this one trial.
 cutoff, with no overlap in their ranges, so the check passes. Popularity hardly changed with window
 length, as expected, because the planted change moves tastes, not which films are popular. These
 are synthetic numbers that check the code, not findings, so they are not in `docs/CLAIMS.md`.
+
+## 2026-11-04: Following the README from a clean clone
+
+**Ran:** a fresh `git clone` of the `phase-8-publication` branch at commit `fcbca16` into an empty
+folder on the laptop, then the README's two commands, `uv sync` and
+`uv run trs reproduce --sample`.
+
+**What happened:** `uv sync` took 14.5 seconds and the run 14.8 seconds. It printed the same table
+as the earlier sample run, found the planted answer and exited with code 0. CI runs the same
+command on Linux on every pull request.
+
+**Limit:** this is not yet a stranger's run. The laptop already had every dependency in uv's cache,
+so a new machine's first `uv sync` downloads PyTorch and Spark and takes longer, which the README
+now says. It also used a machine that already had uv and git. The roadmap's exit needs someone
+outside the project to follow the README on their own machine.
