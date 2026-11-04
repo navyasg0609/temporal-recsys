@@ -20,6 +20,8 @@ spec:
         - maxSkew: 1
           topologyKey: kubernetes.io/hostname
           whenUnsatisfiable: DoNotSchedule
+          # Count only nodes that accept these pods, so the control-plane node is left out.
+          nodeTaintsPolicy: Honor
           labelSelector:
             matchLabels:
               app: recsys
