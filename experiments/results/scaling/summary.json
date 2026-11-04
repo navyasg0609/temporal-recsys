@@ -1,0 +1,59 @@
+{
+  "plan": "scaling",
+  "code_commit": "1ee6fdd04ae6415f307f0eda267edd76b8675a46",
+  "machine": {
+    "cpu_count": 4,
+    "spark": "4.0.4",
+    "driver_memory": "20g"
+  },
+  "rows": 46691107,
+  "cost": 4,
+  "results": [
+    {
+      "engine": "numpy",
+      "cores": 1,
+      "passes": 3,
+      "read_seconds_median": 1.5420520070001658,
+      "fit_seconds_median": 350.0269286920002,
+      "total_seconds_median": 351.3997068789995,
+      "total_seconds_min": 350.7596885740004,
+      "total_seconds_max": 358.1439423620004
+    },
+    {
+      "engine": "spark",
+      "cores": 1,
+      "passes": 3,
+      "read_seconds_median": 21.62386795600014,
+      "fit_seconds_median": 632.7852667590005,
+      "total_seconds_median": 662.0433295769999,
+      "total_seconds_min": 646.9026209079998,
+      "total_seconds_max": 716.491761155,
+      "speedup": 1.0,
+      "beats_numpy": false
+    },
+    {
+      "engine": "spark",
+      "cores": 2,
+      "passes": 3,
+      "read_seconds_median": 17.853419586999735,
+      "fit_seconds_median": 338.2812433500003,
+      "total_seconds_median": 362.486249178,
+      "total_seconds_min": 359.7629548289997,
+      "total_seconds_max": 365.1758743189994,
+      "speedup": 1.8263957076393855,
+      "beats_numpy": false
+    },
+    {
+      "engine": "spark",
+      "cores": 4,
+      "passes": 3,
+      "read_seconds_median": 17.240604522000012,
+      "fit_seconds_median": 301.05852836899976,
+      "total_seconds_median": 323.64965886499976,
+      "total_seconds_min": 302.0487702979999,
+      "total_seconds_max": 327.2175846149994,
+      "speedup": 2.0455554685232973,
+      "beats_numpy": true
+    }
+  ]
+}
