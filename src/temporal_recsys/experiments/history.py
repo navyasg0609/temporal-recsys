@@ -87,6 +87,34 @@ class Trained:
 Trainer = Callable[[str, TemporalSplit, RatingArrays, int], Trained]
 
 
+@dataclass(frozen=True)
+class ArmData:
+    """`history` is every rating before the cutoff, and `window` its last months."""
+
+    split: TemporalSplit
+    history: RatingArrays
+    window: RatingArrays
+    test: RatingArrays
+
+
+def arm_id(cutoff: date, model_name: str, months: int | None, seed: int) -> str:
+    return f"{cutoff}/{model_name}/months={months or ALL_HISTORY}/seed={seed}"
+
+
+def arm_data(plan: HistoryPlan, ratings: RatingArrays, cutoff: date, months: int | None) -> ArmData:
+    history, test = split_by_time(ratings, plan.history_split(cutoff))
+    split = plan.training_split(cutoff, months)
+    window = history.take(history.days >= np.datetime64(split.train_start))
+    return ArmData(split, history, window, test)
+
+
+def with_fallback(scorer: Scorer, window: RatingArrays, n_films: int) -> PopularityFallback:
+    """Give users missing from the window that window's popular films (decision 031)."""
+    popularity = PopularityModel()
+    popularity.fit(window, n_films)
+    return PopularityFallback(scorer, popularity, np.unique(window.user_ids))
+
+
 def load_plan(path: Path) -> HistoryPlan:
     plan = yaml.safe_load(path.read_text(encoding="utf-8"))
     design, measurement = plan["design"], plan["measurement"]
@@ -163,7 +191,7 @@ def two_tower_trainer(raw_dir: Path, plan: HistoryPlan, output_dir: Path, device
 
     features = build_film_features(load_film_info(raw_dir), plan.n_films)
 
-    def train(arm_id: str, _split: TemporalSplit, window: RatingArrays, seed: int) -> Trained:
+    def train(name: str, _split: TemporalSplit, window: RatingArrays, seed: int) -> Trained:
         config = TwoTowerConfig(
             plan.tower_dimensions,
             plan.tower_max_history,
@@ -174,7 +202,7 @@ def two_tower_trainer(raw_dir: Path, plan: HistoryPlan, output_dir: Path, device
             use_content=True,
             seed=seed,
         )
-        checkpoint = output_dir / CHECKPOINT_DIR / f"{file_name(arm_id)}.pt"
+        checkpoint = output_dir / CHECKPOINT_DIR / f"{file_name(name)}.pt"
         model = TwoTowerModel(config, features, device, checkpoint)
         model.fit(window, plan.n_films)
         return Trained(model.factors, model.training_seconds, {})
@@ -199,22 +227,19 @@ def run_history(
     ratings = load_ratings(monthly_dir, plan.first_day, last_end)
 
     for cutoff, months, seed in itertools.product(plan.test_cutoffs, plan.window_months, seeds):
-        arm_id = f"{cutoff}/{model_name}/months={months or ALL_HISTORY}/seed={seed}"
-        if arm_id in finished:
-            LOGGER.info("Keeping finished arm %s", arm_id)
+        name = arm_id(cutoff, model_name, months, seed)
+        if name in finished:
+            LOGGER.info("Keeping finished arm %s", name)
             continue
-        history, test = split_by_time(ratings, plan.history_split(cutoff))
-        split = plan.training_split(cutoff, months)
-        window = history.take(history.days >= np.datetime64(split.train_start))
+        data = arm_data(plan, ratings, cutoff, months)
+        window, test = data.window, data.test
 
-        trained = trainer(arm_id, split, window, seed)
-        popularity = PopularityModel()
-        popularity.fit(window, plan.n_films)
-        scorer = PopularityFallback(trained.scorer, popularity, np.unique(window.user_ids))
-        result = evaluate(scorer, history, test, plan.n_films, plan.evaluation)
+        trained = trainer(name, data.split, window, seed)
+        scorer = with_fallback(trained.scorer, window, plan.n_films)
+        result = evaluate(scorer, data.history, test, plan.n_films, plan.evaluation)
 
         record = make_record(
-            arm_id, "test", model_name, result, trained.fit_seconds, window, test, UserGroup.KNOWN
+            name, "test", model_name, result, trained.fit_seconds, window, test, UserGroup.KNOWN
         ) | {
             "cutoff": str(cutoff),
             "window": months or ALL_HISTORY,
@@ -224,10 +249,10 @@ def run_history(
         }
         with arms_path.open("a", encoding="utf-8") as arms_file:
             arms_file.write(json.dumps(record) + "\n")
-        finished[arm_id] = record
+        finished[name] = record
         LOGGER.info(
             "%s: NDCG@10 %.4f on %d rows in %.1fs",
-            arm_id,
+            name,
             result.ndcg,
             len(window),
             trained.fit_seconds,

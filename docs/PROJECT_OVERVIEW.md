@@ -185,7 +185,10 @@ its value is the code it shares with a cluster, not speed.
 We build the web service and package it with Docker. We then run it on Kubernetes. If
 a user is unknown, the service falls back to popular films.
 
-**Finished when:** the service returns recommendations and its tests pass.
+**Finished when:** the service returns recommendations and its tests pass. Done: it serves the
+neural model on 6 months of history, which scores the same as in Phase 4, and every change is
+tested by deploying it to a small Kubernetes cluster. Automatic scaling was left out, because
+all copies share one laptop.
 
 ### Phase 7: Test under load (3 days)
 

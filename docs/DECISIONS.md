@@ -202,3 +202,36 @@ COST asks how many cores Spark needs to beat a single-threaded program doing the
 ALS already exists, is tested, and matches Spark's quality (decision 023), so it is the baseline. It
 is a plain Python loop, and an optimized library would make Spark's COST higher. That is stated as a
 limit rather than adding a new dependency.
+
+## 035: Make Spark an optional extra
+
+The serving image needs only NumPy and the web framework, and Spark would add hundreds of megabytes
+it never uses. Spark becomes the `spark` extra, as PyTorch became the `neural` extra (decision 027).
+Kaggle runs now install the package with `pip install ./repo[spark]`.
+
+## 036: Rank through one function in evaluation and serving
+
+A service that ranks films differently from the evaluation would serve lists nobody measured. Both
+call `rank_unseen`, which removes films the user already rated and keeps the top k, and a test
+checks that the service returns the same lists as the evaluation for the same model.
+
+## 037: Serve the two-tower model on 6 months before October 2005, seed 1
+
+It is one arm the main experiment scored, so the served model's quality is measured, and the export
+retrains it with the same plan and checks the score. Six months is the history this model needed in
+Phase 4. `configs/serving.yaml` names the arm, and the export refuses any arm the plan did not score.
+
+## 038: Keep rating data out of the image, the repository and the logs
+
+The bundle holds user IDs and the films each user rated, which is close to the dataset itself, so it
+must not be redistributed. It stays in the git-ignored `artifacts/` folder and is mounted read-only
+when the service runs. The image holds code only, and leaves out pyarrow and scipy, which the
+service never imports. Logs record the route template, never a user ID, and responses give film IDs
+without titles.
+
+## 039: Run a fixed two copies, without autoscaling
+
+The roadmap's cut order lists autoscaling first. On one machine every copy of the service shares the
+same CPUs, so adding copies under load cannot add capacity, and an autoscaling demo would show the
+mechanism without a benefit. The cluster runs two copies, one per worker node, and the kind nodes are
+containers on one machine, which every result states.

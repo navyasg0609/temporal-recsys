@@ -76,3 +76,8 @@ number is not in this table, it is not published.
 | Spark ALS on 1 core against NumPy ALS on 1 thread | 1.88 times as long | Kaggle CPU notebook, AMD EPYC 7B12, 2 physical cores with 2 threads each, 31.3 GB, Spark local mode | scaling | `trs scaling` | `1ee6fdd` |
 | COST of Spark ALS against single-threaded NumPy ALS | 4 threads, the whole machine. Median 7.9% lower than NumPy, no overlap | Kaggle CPU notebook, AMD EPYC 7B12, 2 physical cores with 2 threads each, 31.3 GB, Spark local mode | scaling | `trs scaling` | `1ee6fdd` |
 | Spark ALS on 2 cores against NumPy ALS | 3.2% slower, no overlap | Kaggle CPU notebook, AMD EPYC 7B12, 2 physical cores with 2 threads each, 31.3 GB, Spark local mode | scaling | `trs scaling` | `1ee6fdd` |
+| NDCG@10 of the served two-tower arm, retrained | 0.0993, against 0.0994 in Phase 4 | Kaggle GPU notebook, one Tesla T4, 4 cores, 31.3 GB | serving-export | `trs export-serving` | `aa6d52b` |
+| Served lists equal to the evaluation's lists | 5,000 of 5,000 sampled users | Kaggle GPU notebook, one Tesla T4, 4 cores, 31.3 GB | serving-export | `trs export-serving` | `aa6d52b` |
+| Serving bundle size | 566,831,262 bytes | Kaggle GPU notebook, one Tesla T4, 4 cores, 31.3 GB | serving-export | `trs export-serving` | `aa6d52b` |
+| Serving image size | 299 MB | Laptop, Intel Core i7-1355U, 15.7 GB, Docker Desktop with 12 CPUs and 7.6 GiB, kind cluster of 3 nodes on one machine | phase 6 deployment | `docker build -f deploy/Dockerfile` | `b123065` |
+| Memory per service copy with the real bundle | 590 MiB | Laptop, Intel Core i7-1355U, 15.7 GB, Docker Desktop with 12 CPUs and 7.6 GiB, kind cluster of 3 nodes on one machine | phase 6 deployment | `deploy/cluster.sh` | `726604c` |

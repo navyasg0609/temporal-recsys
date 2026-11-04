@@ -1,6 +1,6 @@
 # Roadmap
 
-**Status:** Phases 0, 1, 2, 3, 3b, 4 and 5 complete. Phase 6 is next.
+**Status:** Phases 0, 1, 2, 3, 3b, 4, 5 and 6 complete. Phase 7 is next.
 
 Update this file when a phase finishes. A phase is done only when its exit
 criteria have been demonstrated with real output.
@@ -98,7 +98,10 @@ does not.
 - Serve precomputed embeddings from the best model through FastAPI, scoring with NumPy.
 - Handle unknown users with the popularity fallback.
 - Add health checks, structured logs and metrics.
-- Package with Docker and deploy to a multi-node kind cluster with autoscaling.
+- Package with Docker and deploy to a multi-node kind cluster. Autoscaling was cut, because the
+  nodes share one machine (decision 039).
+- Result: the served model reproduces its Phase 4 score, and CI deploys it to a three-node kind
+  cluster and checks planted answers from inside (`docs/LAB_NOTEBOOK.md`, 2026-11-04).
 
 **Exit:** the API returns recommendations from inside the cluster, with
 integration tests.

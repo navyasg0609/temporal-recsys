@@ -1,0 +1,17 @@
+{
+  "arm": "2005-10-01/two-tower/months=6/seed=1",
+  "code_commit": "aa6d52bef5b5d3a382504e775bebdbc9d94db7a6",
+  "device": "cuda:0",
+  "ndcg": 0.09934913497730655,
+  "recall": 0.11612856349206349,
+  "training_seconds": 228.22830508000015,
+  "window_rows": 28970031,
+  "history_rows": 89313064,
+  "users_with_model_vectors": 377916,
+  "users_with_history": 444323,
+  "films": 17770,
+  "dimensions": 64,
+  "bundle_bytes": 566831262,
+  "lists_checked": 5000,
+  "lists_matching_evaluation": 5000
+}

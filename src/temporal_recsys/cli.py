@@ -99,6 +99,13 @@ def build_parser() -> argparse.ArgumentParser:
     history.add_argument("--code-commit", required=True)
     history.add_argument("--driver-memory", default="2g")
 
+    export = commands.add_parser("export-serving", help="train and pack the model to serve")
+    export.add_argument("--monthly-dir", type=Path, required=True)
+    export.add_argument("--raw-dir", type=Path, required=True)
+    export.add_argument("--config", type=Path, required=True)
+    export.add_argument("--output-dir", type=Path, required=True)
+    export.add_argument("--code-commit", required=True)
+
     scaling = commands.add_parser("scaling", help="time Spark ALS on each core count")
     scaling.add_argument("--data-dir", type=Path, required=True)
     scaling.add_argument("--plan", type=Path, required=True)
@@ -238,6 +245,25 @@ def run_history_command(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_export_serving_command(args: argparse.Namespace) -> int:
+    # PyTorch is an optional extra, so only this command may require it.
+    from temporal_recsys.experiments.serving_export import export_serving, load_config
+    from temporal_recsys.experiments.two_tower import pick_device
+
+    config = load_config(args.config)
+    manifest = export_serving(
+        args.monthly_dir,
+        args.raw_dir,
+        load_history_plan(config.history_plan),
+        config,
+        args.output_dir,
+        args.code_commit,
+        pick_device(),
+    )
+    print(json.dumps(manifest, indent=2))
+    return 0
+
+
 def run_scaling_command(args: argparse.Namespace) -> int:
     summary = run_scaling(
         args.data_dir, load_scaling_plan(args.plan), args.output_dir, args.code_commit
@@ -284,6 +310,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         "two-tower-diagnostic": run_two_tower_diagnostic_command,
         "history": run_history_command,
         "scaling": run_scaling_command,
+        "export-serving": run_export_serving_command,
     }
     return commands[args.command](args)
 
