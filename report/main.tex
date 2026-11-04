@@ -20,11 +20,11 @@
 
 \begin{abstract}
 Collaborative filtering models are usually trained on all the history a service has kept,
-although tastes and catalogues change and training cost grows with every month retained. We ask
+although tastes and catalogs change and training cost grows with every month retained. We ask
 how much history three recommenders actually need. Popularity, Spark preference ALS and a
 two-tower neural model are trained on windows of 1 to 24 months and on all history before three
 monthly cutoffs in 2005, and are scored on the following month of the Netflix Prize ratings with
-NDCG@10 against the full catalogue. Every plan was registered before it ran. Popularity and ALS
+NDCG@10 against the full catalog. Every plan was registered before it ran. Popularity and ALS
 do best on the most recent month: ALS on 1 month scores 1.68 times its all-history score and
 trains in about an eighth of the time. The two-tower model needs about 6 months, which reach
 98.0\% of its 12-month score, and no model gains from history beyond 12 months. The two-tower
@@ -44,7 +44,7 @@ of the same period.
 
 This report treats history length as the variable under study. It asks how much interaction
 history a collaborative filtering model needs, what each additional month costs in compute, and
-whether a neural model needs more or less history than matrix factorisation. The setting is the
+whether a neural model needs more or less history than matrix factorization. The setting is the
 Netflix Prize data \citep{bennett2007netflix}, which has about 100 million dated ratings, so a
 window can be cut at any month and its cost measured.
 
@@ -62,20 +62,20 @@ The contributions are:
 \section{Related work}
 
 \paragraph{Time in collaborative filtering.} \citet{koren2009temporal} showed on this dataset
-that user and item biases drift, and modelled the drift explicitly. This work asks a simpler
+that user and item biases drift, and modeled the drift explicitly. This work asks a simpler
 question that such models leave open: if a model is not told about time, how much history should
 it be given?
 
 \paragraph{Evaluation.} \citet{ji2023leakage} show that random and leave-one-out splits let models
 train on interactions from after the test point, and that model rankings change with the amount
 leaked. \citet{krichene2020sampled} show that metrics computed against a sample of negative items
-can reverse model orderings, so this work ranks the full catalogue. \citet{dacrema2019progress}
+can reverse model orderings, so this work ranks the full catalog. \citet{dacrema2019progress}
 found that many neural recommenders did not beat well-tuned simple baselines, and
 \citet{rendle2020ncf} that a dot product is hard to beat. Both motivate the strong baselines
 here, including popularity over the most recent month.
 
 \paragraph{Models.} ALS for explicit ratings \citep{zhou2008als} and for implicit preference
-\citep{hu2008implicit} are standard matrix factorisation baselines. Two-tower models encode users
+\citep{hu2008implicit} are standard matrix factorization baselines. Two-tower models encode users
 and items separately and score them with a dot product \citep{covington2016youtube}; the one here
 is trained with an in-batch softmax and the popularity correction of \citet{yi2019sampling}.
 
@@ -112,7 +112,7 @@ that window's most popular films, as a deployed service would give them. New use
 separately and excluded here.
 
 \paragraph{Metric.} For each user, the model ranks all films not rated before the cutoff, and a
-test rating of 4 or 5 stars counts as relevant. The primary metric is NDCG@10, normalised by the
+test rating of 4 or 5 stars counts as relevant. The primary metric is NDCG@10, normalized by the
 best score possible at 10, so a perfect list scores 1. Up to 50,000 eligible users are sampled
 per arm with a fixed seed. Recall@10 was also recorded. It picks the same best window as NDCG
 for popularity and ALS at every test month, while for the two-tower model its best window varies
@@ -121,7 +121,7 @@ among 12 months, 24 months and all history.
 \paragraph{Models.}
 \emph{Popularity} counts each film's ratings in the window.
 \emph{Spark preference ALS} \citep{hu2008implicit} learns which films a user chose to rate, with
-rank 20, regularisation 0.01, confidence 3 and 10 iterations. In an earlier registered
+rank 20, regularization 0.01, confidence 3 and 10 iterations. In an earlier registered
 comparison, preference ALS beat ALS on ratings \citep{zhou2008als} at every temporal cutoff, so it
 is the ALS baseline.
 \emph{The two-tower model} has no per-user ID: the user tower averages embeddings of up to the 50
@@ -268,13 +268,14 @@ laptop, so these numbers describe that laptop, not a production cluster.
 
 \paragraph{Narrow test period.} Three test months, all in late 2005, on one dataset. The finding
 may not hold for other periods or services, and a second dataset was cut from scope.
-\paragraph{Settings.} Settings were tuned on the 12-month window, which could favour it; that it
-still lost for ALS makes this a conservative choice for the main finding. Fixed epochs give short
-windows fewer training steps, which may understate the two-tower model on short windows.
+\paragraph{Settings.} Settings were tuned on the 12-month window, which could favor that window.
+ALS still did best on 1 month, so this tuning works against the main finding rather than for it.
+Fixed epochs give short windows fewer training steps, which may understate the two-tower model on
+short windows.
 \paragraph{Exposure.} Ratings reflect what Netflix showed its users. Some of the advantage of
 recent history may come from what the service promoted, which this data cannot separate.
 \paragraph{Offline measurement.} NDCG on held-out ratings rewards predicting what users rated, not
-what they would have enjoyed, and favours popular films. No online test was possible.
+what they would have enjoyed, and favors popular films. No online test was possible.
 \paragraph{Seeds and repeatability.} Two seeds per trained arm. GPU training was not bit-for-bit
 repeatable across runs with the same seed, while NumPy ALS was.
 \paragraph{Hardware.} Times come from shared, free notebooks and one laptop. Models on different
@@ -284,13 +285,13 @@ wait for each answer, which understates queueing compared with real arrivals.
 \section{Ethics and data handling}
 \label{sec:ethics}
 
-The Netflix Prize data was released as anonymous, and \citet{narayanan2008deanon} showed that a
+The Netflix Prize data was released with subscribers' identities removed, and \citet{narayanan2008deanon} showed that a
 few known ratings and dates could identify a subscriber's record. This project therefore does not
 redistribute the data or any sample of it. The repository holds code, registered plans and
 aggregate results only. The model bundle served in the cluster holds user IDs and their rated
 films, so it is kept out of the repository and the container image, the service never logs a
 user ID, and it returns film IDs without titles. Tests and continuous integration use synthetic
-data. Recommenders trained on ratings also tend to favour popular films; this work measures
+data. Recommenders trained on ratings also tend to favor popular films; this work measures
 accuracy only and makes no fairness claim.
 
 \section{Conclusion and future work}
@@ -306,9 +307,9 @@ epochs, and testing whether an approximate index or several machines change the 
 scaling results.
 
 \paragraph{Reproducibility.} The code, registered plans, results, claims ledger and lab notebook
-are public. \texttt{trs reproduce --sample} runs the whole method on synthetic data with a planted
-change in user tastes on any laptop and checks that it is found; the full-data commands, each
-with the commit its results record, are listed in \texttt{docs/REPRODUCING.md}.
+are public. \texttt{trs reproduce -{}-sample} runs the whole method on synthetic data with a
+planted change in user tastes on any laptop and checks that it is found. The full-data commands
+are listed in \texttt{docs/REPRODUCING.md}, each with the commit its results came from.
 
 \bibliographystyle{plainnat}
 \bibliography{references}
